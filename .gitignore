@@ -1,2 +1,4 @@
-node_modules
-%ProgramData%
+/frontend/node_modules/
+/backend/node_modules/
+
+/backend/capstone_lll_backend/settings.py
