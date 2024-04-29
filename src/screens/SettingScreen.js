@@ -64,7 +64,7 @@ const SettingScreen = ({ navigation }) => {
         <>
           <TextInput
             style={styles.input}
-            placeholder="아이디"
+            placeholder="이메일"
             onChangeText={setId}
           />
           <TextInput
