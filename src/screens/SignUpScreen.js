@@ -24,12 +24,9 @@ const SignUpScreen = () => {
     if (!password) {
       newErrors.password = "사용할 비밀번호를 입력해 주세요.";
       isValid = false;
-    } else if (password.length < 8) {
-       newErrors.password = "비밀번호는 최소 8자 이상이어야 합니다.";
-       isValid = false;
     } else if (/[^a-zA-Z0-9]/.test(password)) {
-      newErrors.password = "비밀번호에는 특수 문자를 포함할 수 없습니다.";
-      isValid = false;
+       newErrors.password = "비밀번호에는 특수 문자를 포함할 수 없습니다.";
+       isValid = false;
     }
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
@@ -109,7 +106,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
-    width: '100%',
   },
   buttonText: {
     color: '#4E348B',
