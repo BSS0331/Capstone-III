@@ -1,33 +1,39 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';  // 임시
+import AsyncStorage from '@react-native-async-storage/async-storage';  // 로컬 저장소를 다루기 위한 모듈
 
 import SocialLoginButton from '../components/common/SocialLoginButton';
 
+// 설정 화면 구성 컴포넌트
 const SettingScreen = ({ navigation }) => {
+  // 화면 포커스 시 수행할 작업을 설정
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
 
+      // 현재 화면의 탭 바와 헤더를 숨기는 옵션 설정
       parent.setOptions({
         tabBarStyle: { display: 'none' },
         headerShown: false,
       });
 
+      // 로그인 상태 확인
       checkLogin();
 
+      // 컴포넌트 언마운트 시 탭 바 원래대로 복구
       return () => parent.setOptions({
         tabBarStyle: undefined,
       });
     }, [navigation])
   );
 
+  // 상태 관리: 사용자 ID, 비밀번호 및 로그인 상태
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 로그인 확인
+  // 사용자 로그인 상태 확인
   const checkLogin = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId');
@@ -35,11 +41,11 @@ const SettingScreen = ({ navigation }) => {
         setIsLoggedIn(true);
       }
     } catch (e) {
-      console.error(e);
+      console.error(e); // 오류 발생 시 콘솔에 출력
     }
   };
 
-  // 로그인 처리 함수
+  // 일반 로그인 처리 함수
   const handleLogin = async () => {
     await AsyncStorage.setItem('userId', id);
     setIsLoggedIn(true);
@@ -61,17 +67,18 @@ const SettingScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {!isLoggedIn ? (
+        // 로그인이 되어 있지 않은 상태의 UI 구성
         <>
           <TextInput
             style={styles.input}
             placeholder="이메일"
-            onChangeText={setId}
+            onChangeText={setId}  // 입력 시 ID 상태 업데이트
           />
           <TextInput
             style={styles.input}
             placeholder="비밀번호"
-            secureTextEntry
-            onChangeText={setPassword}
+            secureTextEntry  // 비밀번호 입력 필드 보안
+            onChangeText={setPassword}  // 입력 시 비밀번호 상태 업데이트
           />
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginButtonText}>로그인</Text>
@@ -81,21 +88,21 @@ const SettingScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.socialLoginContainer}>
-            <SocialLoginButton
+            <SocialLoginButton  // 소셜 로그인 버튼 컴포넌트 Naver
               iconSource={require('../assets/images/naver.png')}
               onPress={() => handleSocialLogin('Naver')}
             />
-            <SocialLoginButton
+            <SocialLoginButton  // 소셜 로그인 버튼 컴포넌트 KaKaoTalk
               iconSource={require('../assets/images/kakao.png')}
               onPress={() => handleSocialLogin('KakaoTalk')}
             />
-            <SocialLoginButton
+            <SocialLoginButton  // 소셜 로그인 버튼 컴포넌트 Google
               iconSource={require('../assets/images/google.png')}
               onPress={() => handleSocialLogin('Google')}
             />
           </View>
         </>
-      ) : (  // 로그인 상태일 때의 UI
+      ) : (  // 로그인이 되어 있는 상태의 UI
         <View style={styles.loggedInContainer}>
           <Text style={styles.welcomeText}>환영합니다, {id}님!</Text>
           <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('ProfileEdit')}>
@@ -110,63 +117,60 @@ const SettingScreen = ({ navigation }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+    flex: 1,  // 전체 화면 사용
+    justifyContent: 'center',  // 중앙 정렬
+    alignItems: 'center',  // 아이템을 가로 축 중앙에 배치
+    padding: 20,  // 모든 방향에 20의 패딩 적용
   },
   input: {
-    width: '100%',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginVertical: 5,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    width: '100%',  // 너비를 부모 컨테이너의 100%로 설정
+    paddingVertical: 8,  // 수직 패딩
+    paddingHorizontal: 10,  // 수평 패딩
+    marginVertical: 5,  // 수직 마진
+    borderWidth: 1,  // 테두리 두께
+    borderColor: '#ccc',  // 테두리 색상
+    borderRadius: 5,  // 테두리 둥글기
   },
   loginButton: {
-    backgroundColor: '#EEE8F4', // 로그인 버튼 배경 색
-    paddingVertical: 15, // 로그인 버튼의 세로 패딩
-    paddingHorizontal: 20, // 로그인 버튼의 가로 패딩
-    borderRadius: 10, // 로그인 버튼의 모서리 둥글기
-    marginTop: 20, // 로그인 버튼 상단 여백
-    width: '100%', // 로그인 버튼 너비
-    alignItems: 'center', // 로그인 버튼 내 텍스트 중앙 정렬
+    backgroundColor: '#EEE8F4',  // 버튼 배경색
+    paddingVertical: 15,  // 세로 패딩
+    paddingHorizontal: 20,  // 가로 패딩
+    borderRadius: 10,  // 모서리 둥글기
+    marginTop: 20,  // 상단 여백
+    width: '100%',  // 너비
+    alignItems: 'center',  // 텍스트 중앙 정렬
   },
   loginButtonText: {
-    color: '#4E348B', // 로그인 버튼 텍스트 색
-    fontSize: 18, // 로그인 버튼 텍스트 크기
+    color: '#4E348B',  // 텍스트 색상
+    fontSize: 18,  // 텍스트 크기
   },
   signupButton: {
-    position: 'absolute', // 회원가입 버튼을 절대 위치로 설정
-    right: 10, // 오른쪽에서 10의 위치
-    top: 10, // 상단에서 10의 위치
-    padding: 10, // 패딩
+    position: 'absolute',  // 절대 위치
+    right: 10,  // 오른쪽에서 10
+    top: 10,  // 상단에서 10
+    padding: 10,  // 전체 패딩
   },
   signupButtonText: {
-    color: '#4E348B', // 회원가입 버튼 텍스트 색
-    fontSize: 16, // 회원가입 버튼 텍스트 크기
-  },
-  profileButton: {
-    // 프로필 수정 버튼 스타일 (필요에 따라 조정)
-  },
-  logoutButton: {
-    // 로그아웃 버튼 스타일 (필요에 따라 조정)
+    color: '#4E348B',  // 텍스트 색상
+    fontSize: 16,  // 텍스트 크기
   },
   socialLoginContainer: {
-    flexDirection: 'row', // 방향 수정
-    marginTop: 20,
-    alignItems: 'center', // 가운데 정렬로 수정
-    justifyContent: 'space-evenly',
-    width: '78%',
+    flexDirection: 'row',  // 가로 배치
+    marginTop: 20,  // 상단 여백
+    alignItems: 'center',  // 중앙 정렬
+    justifyContent: 'space-evenly',  // 아이템 간격 균등 배치
+    width: '78%',  // 너비
+  },
+  loggedInContainer: {
+    // 로그인 상태일 때의 스타일 설정 (추가 필요)
+  },
+  editProfileButton: {
+    // 프로필 수정 버튼 스타일 (추가 필요)
+  },
+  logoutButton: {
+    // 로그아웃 버튼 스타일 (추가 필요)
   },
 });
 
