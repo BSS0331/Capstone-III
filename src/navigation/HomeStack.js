@@ -15,11 +15,7 @@ const HomeStack = () => {
     <Stack.Navigator>
       <Stack.Screen name="HomeStack"
       component={HomeScreen}
-      options={{ title: '메인메뉴', headerShown: false }}
-      />
-      <Stack.Screen name="SettingStack"
-      component={SettingStack}
-      options={{ headerShown: false }}
+      options={{ title: '메인메뉴' }}
       />
       <Stack.Screen name="ManualEntry"
       component={ManualEntryScreen}

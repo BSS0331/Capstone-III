@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import SettingScreen from '../screens/SettingScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -13,19 +13,22 @@ const SettingStack = () => {
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
-      if (parent) { // parent가 존재하는지 확인
+      if (parent) {
         parent.setOptions({
-          tabBarStyle: { display: 'none' },
-          headerShown: false,
+          tabBarStyle: { display: 'none' }, // 하단 탭 내비게이터 숨김
+          headerShown: false
         });
 
-        return () => parent.setOptions({
-          tabBarStyle: undefined,
-          headerShown: true,
-        });
+        return () => {
+          parent.setOptions({
+            tabBarStyle: undefined, // 하단 탭 내비게이터를 기본 스타일로 복원
+            headerShown: false
+          });
+        };
       }
     }, [navigation]) // 의존성 배열에 navigation 추가
   );
+
   return (
     <Stack.Navigator>
       <Stack.Screen name="Setting" component={SettingScreen} options={{ title: '설정' }}/>
