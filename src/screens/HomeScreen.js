@@ -16,7 +16,7 @@ const HomeScreen = () => {
         icon={isFabOpen ? 'close' : 'plus'}  // 아이콘 (열려있으면 'close', 닫혀있으면 'plus')
         color= '#4E348B'
         actions={[  // FAB 그룹 내의 액션 버튼 배열
-          { icon: 'cog', label: '설정', onPress: () => navigation.navigate('Setting'), small: false },
+          { icon: 'cog', label: '설정', onPress: () => navigation.navigate('SettingStack'), small: false },
           { icon: 'pencil', label: '수동 입력', onPress: () => navigation.navigate('ManualEntry'), small: false },
           { icon: 'receipt', label: '영수증', onPress: () => navigation.navigate('ReceiptCapture'), small: false },
           { icon: 'barcode', label: '바코드', onPress: () => navigation.navigate('Barcode'), small: false },

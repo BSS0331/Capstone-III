@@ -21,8 +21,8 @@ const ManualEntryScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>수동 입력 화면</Text>
+    <View>
+      
     </View>
   );
 };

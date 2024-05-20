@@ -1,79 +1,79 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 const SignUpScreen = () => {
   const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [errors, setErrors] = useState({});
+
 
   const validateInput = () => {
-    if (!name || !userId || !password || !confirmPassword || !nickname) {
-      Alert.alert("Error", "Please fill in all required fields.");
-      return false;
+    let isValid = true;
+    let newErrors = {};
+
+    if (!name) {
+      newErrors.general = "사용할 닉네임을 입력해 주세요.";
+      isValid = false;
     }
-    if (/[^a-zA-Z0-9]/.test(password)) {
-      Alert.alert("Error", "Password should not contain special characters.");
-      return false;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userId)) {
+      newErrors.userId = "올바른 이메일 형식이 아닙니다.";
+      isValid = false;
+    }
+    if (!password) {
+      newErrors.password = "사용할 비밀번호를 입력해 주세요.";
+      isValid = false;
+    } else if (/[^a-zA-Z0-9]/.test(password)) {
+       newErrors.password = "비밀번호에는 특수 문자를 포함할 수 없습니다.";
+       isValid = false;
     }
     if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match.");
-      return false;
+      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+      isValid = false;
     }
-    return true;
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSubmit = () => {
     if (validateInput()) {
-      Alert.alert("Success", "Sign up successful!");
-      // 회원가입 성공 처리 로직 추가
+      // 회원가입 성공 처리 로직 (예: API 호출)
     }
   };
 
   return (
     <View style={styles.container}>
       <TextInput 
-        placeholder="Name *"
+        placeholder="닉네임"
         value={name}
-        onChangeText={setName}
+        onChangeText={text => { setName(text); setErrors(prev => ({ ...prev, general: null })); }}
         style={styles.input}
       />
+      {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
       <TextInput 
-        placeholder="Phone Number"
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
-        style={styles.input}
-      />
-      <TextInput 
-        placeholder="ID *"
+        placeholder="이메일"
         value={userId}
-        onChangeText={setUserId}
+        onChangeText={text => { setUserId(text); setErrors(prev => ({ ...prev, userId: null })); }}
         style={styles.input}
       />
+      {errors.userId && <Text style={styles.errorText}>{errors.userId}</Text>}
       <TextInput 
-        placeholder="Password *"
+        placeholder="비밀번호"
         value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
+        onChangeText={text => { setPassword(text); setErrors(prev => ({ ...prev, password: null })); }}
         style={styles.input}
       />
+      {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
       <TextInput 
-        placeholder="Confirm Password *"
+        placeholder="비밀번호 확인"
         value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry={true}
+        onChangeText={text => { setConfirmPassword(text); setErrors(prev => ({ ...prev, confirmPassword: null })); }}
         style={styles.input}
       />
-      <TextInput 
-        placeholder="Nickname *"
-        value={nickname}
-        onChangeText={setNickname}
-        style={styles.input}
-      />
+      {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
       <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-        <Text>Sign Up</Text>
+        <Text style={styles.buttonText}>가입하기</Text>
       </TouchableOpacity>
     </View>
   );
@@ -94,11 +94,21 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+  errorText: {
+    width: '100%',
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 5,
+  },
   button: {
     marginTop: 20,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#EEE8F4',
     padding: 15,
     borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#4E348B',
   }
 });
 

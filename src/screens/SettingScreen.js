@@ -4,7 +4,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // 임시
 
 import SocialLoginButton from '../components/common/SocialLoginButton';
-import SignUpScreen from './SignUpScreen';  // 임시
 
 const SettingScreen = ({ navigation }) => {
   useFocusEffect(
@@ -15,6 +14,8 @@ const SettingScreen = ({ navigation }) => {
         tabBarStyle: { display: 'none' },
         headerShown: false,
       });
+
+      checkLogin();
 
       return () => parent.setOptions({
         tabBarStyle: undefined,
@@ -57,19 +58,13 @@ const SettingScreen = ({ navigation }) => {
     setIsLoggedIn(false);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      checkLogin();
-    }, [])
-  );
-
   return (
     <View style={styles.container}>
       {!isLoggedIn ? (
         <>
           <TextInput
             style={styles.input}
-            placeholder="아이디"
+            placeholder="이메일"
             onChangeText={setId}
           />
           <TextInput
@@ -87,15 +82,15 @@ const SettingScreen = ({ navigation }) => {
 
           <View style={styles.socialLoginContainer}>
             <SocialLoginButton
-              iconName={require('../assets/images/naver.png')}
+              iconSource={require('../assets/images/naver.png')}
               onPress={() => handleSocialLogin('Naver')}
             />
             <SocialLoginButton
-              iconName={require('../assets/images/kakao.png')}
+              iconSource={require('../assets/images/kakao.png')}
               onPress={() => handleSocialLogin('KakaoTalk')}
             />
             <SocialLoginButton
-              iconName={require('../assets/images/google.png')}
+              iconSource={require('../assets/images/google.png')}
               onPress={() => handleSocialLogin('Google')}
             />
           </View>
@@ -138,7 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   loginButton: {
-    backgroundColor: '#007AFF', // 로그인 버튼 배경 색
+    backgroundColor: '#EEE8F4', // 로그인 버튼 배경 색
     paddingVertical: 15, // 로그인 버튼의 세로 패딩
     paddingHorizontal: 20, // 로그인 버튼의 가로 패딩
     borderRadius: 10, // 로그인 버튼의 모서리 둥글기
@@ -147,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 로그인 버튼 내 텍스트 중앙 정렬
   },
   loginButtonText: {
-    color: 'white', // 로그인 버튼 텍스트 색
+    color: '#4E348B', // 로그인 버튼 텍스트 색
     fontSize: 18, // 로그인 버튼 텍스트 크기
   },
   signupButton: {
@@ -157,7 +152,7 @@ const styles = StyleSheet.create({
     padding: 10, // 패딩
   },
   signupButtonText: {
-    color: '#007AFF', // 회원가입 버튼 텍스트 색
+    color: '#4E348B', // 회원가입 버튼 텍스트 색
     fontSize: 16, // 회원가입 버튼 텍스트 크기
   },
   profileButton: {
@@ -167,15 +162,11 @@ const styles = StyleSheet.create({
     // 로그아웃 버튼 스타일 (필요에 따라 조정)
   },
   socialLoginContainer: {
-    flexDirection: 'column', // 방향 수정
-    marginTop: 10,
+    flexDirection: 'row', // 방향 수정
+    marginTop: 20,
     alignItems: 'center', // 가운데 정렬로 수정
-  },
-  socialButton: {
-    width: 192, // 버튼 크기 조정
-    height: 48, // 버튼 크기 조정
-    resizeMode: 'contain',
-    marginBottom: 10, // 버튼 사이의 수직 간격 조정
+    justifyContent: 'space-evenly',
+    width: '78%',
   },
 });
 
