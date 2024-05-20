@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, FlatList, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { Recipes_Data } from '@env';
+
 
 const RecipesScreen = () => {
   const [recipes, setRecipes] = useState([]);
@@ -10,7 +12,7 @@ const RecipesScreen = () => {
 
   const fetchRecipes = async () => {
     try {
-      const response = await fetch('http://openapi.foodsafetykorea.go.kr/api/7bd588b749bc4deca9f5/COOKRCP01/json/1/1000');
+      const response = await fetch(Recipes_Data);
       const json = await response.json();
       if (json.COOKRCP01.row.length > 0) {
         setMainRecipe(json.COOKRCP01.row[0]);

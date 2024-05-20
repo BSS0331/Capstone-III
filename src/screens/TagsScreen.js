@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Recipes_Data } from '@env';
 
 const TagsScreen = () => {
   const [recipes, setRecipes] = useState([]);
@@ -13,7 +14,7 @@ const TagsScreen = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch('http://openapi.foodsafetykorea.go.kr/api/7bd588b749bc4deca9f5/COOKRCP01/json/1/1000');
+        const response = await fetch(Recipes_Data);
         const json = await response.json();
         setRecipes(json.COOKRCP01.row);
         const uniqueTypeTags = Array.from(new Set(json.COOKRCP01.row.map(item => item.RCP_PAT2)));
