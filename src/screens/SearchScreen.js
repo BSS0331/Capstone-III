@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
+import { Recipes_Data } from '@env';
 
 const SearchScreen = () => {
   const navigation = useNavigation();
@@ -28,7 +29,7 @@ const SearchScreen = () => {
     if (!searchQuery.trim()) return;
     setIsLoading(true);
     try {
-      const response = await fetch(`https://openapi.foodsafetykorea.go.kr/api/7bd588b749bc4deca9f5/COOKRCP01/json/1/1000?RCP_NM=${searchQuery}`);
+      const response = await fetch(`${Recipes_Data}?RCP_NM=${searchQuery}`);
       const json = await response.json();
       let filteredRecipes = json.COOKRCP01.row;
 
