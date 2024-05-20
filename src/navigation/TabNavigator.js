@@ -3,9 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeStack from './HomeStack';
+import MypageStack from './MypageStack';
 import RecipesScreen from './RecipeStack';
 import FridgeScreen from '../screens/FridgeScreen';
-import MypageScreen from '../screens/MypageScreen';
+
 
 
 const Tab = createBottomTabNavigator();
@@ -35,7 +36,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Home" component={HomeStack} options={{ title: '메인메뉴', headerShown: false }} />
       <Tab.Screen name="Recipes" component={RecipesScreen} options={{ title: '레시피' }} />
       <Tab.Screen name="Fridge" component={FridgeScreen} options={{ title: '냉장고' }} />
-      <Tab.Screen name="Mypage" component={MypageScreen} options={{ headerShown: false}}/>
+      <Tab.Screen name="Mypage" component={MypageStack} options={{ title: 'MY', headerShown: false}}/>
     </Tab.Navigator>
   );
 };
