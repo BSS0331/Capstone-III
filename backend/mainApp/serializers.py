@@ -7,6 +7,7 @@ from mainApp.models import (
 
 from rest_framework import serializers
 from mainApp.models import User
+from .models import Category, Ingredient
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -69,3 +70,25 @@ class PostSerializer(serializers.ModelSerializer):
             "content",
             "comments",
         )
+
+# Post 생성 및 업데이트 시리얼라이저
+class PostCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ("title", "content")
+
+# Comment 생성 및 업데이트 시리얼라이저
+class CommentCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content", "post", "parent")
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ['id', 'user', 'category', 'name', 'quantity', 'unit', 'expiration_date']

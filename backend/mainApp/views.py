@@ -1,36 +1,23 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.shortcuts import render, redirect
 import os
 import secrets
 import requests
 from django.http import JsonResponse
-from django.shortcuts import redirect
 from django.conf import settings
-from rest_framework import status
+from rest_framework import status, generics, permissions, views
 from django.contrib.auth import authenticate, login
-from .serializers import UserRegistrationSerializer, UserLoginSerializer
+from django.contrib.auth import get_user_model
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, PostSerializer, PostCreateUpdateSerializer, CommentSerializer, CommentCreateUpdateSerializer
+from .models import Post, Comment
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics, views
-from .models import Post, Comment, User
-from .serializers import PostSerializer, CommentSerializer
-from django.contrib.auth import get_user_model
+from .models import Category, Ingredient
+from .serializers import CategorySerializer, IngredientSerializer
 
 
-# REST API 기본 테스트 함수
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def hello_rest_api(request):
-    data = {'message': 'Hello, REST API!'}
-    return Response(data)
-
-# 사용자 로그인 API
-
-
-class SignupView(APIView):
+# 사용자 회원가입 API
+class SignupView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -38,7 +25,8 @@ class SignupView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class LoginView(APIView):
+# 사용자 로그인 API
+class LoginView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -50,6 +38,7 @@ class LoginView(APIView):
                 return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # Google 로그인 및 콜백 처리
 def google_login(request):
     params = {
@@ -57,20 +46,6 @@ def google_login(request):
         'redirect_uri': settings.GOOGLE_REDIRECT_URI,
         'response_type': 'code',
         'scope': 'email profile'
-    }
-    auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
-    return redirect(auth_url)
-
-@api_view(['GET'])
-def initiate_auth(request):
-    state = secrets.token_urlsafe()
-    request.session['oauth_state'] = state
-    params = {
-        'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-        'response_type': 'code',
-        'scope': 'email profile',
-        'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
-        'state': state
     }
     auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
     return redirect(auth_url)
@@ -111,6 +86,7 @@ def naver_login(request):
     url = f'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={settings.NAVER_CLIENT_ID}&redirect_uri={settings.NAVER_REDIRECT_URI}'
     return redirect(url)
 
+@api_view(['GET'])
 def naver_callback(request):
     code = request.GET.get('code')
     state = request.GET.get('state')
@@ -145,29 +121,61 @@ def naver_callback(request):
         'email': email
     })
 
-# 게시물 및 댓글 관련 API 뷰
-class PostListView(generics.ListAPIView):
+# 게시물 리스트 조회 및 생성 뷰
+class PostListView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-creation_date")
     serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class DetailPost(generics.RetrieveAPIView):
+    def perform_create(self, serializer):
+        serializer.save(member=self.request.user)
+
+# 게시물 상세 조회, 업데이트, 삭제 뷰
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class PostSearchView(generics.ListAPIView):
-    serializer_class = PostSerializer
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return PostCreateUpdateSerializer
+        return PostSerializer
+
+# 댓글 리스트 조회 및 생성 뷰
+class CommentListView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        query = self.request.query_params.get("q", None)
-        if query is not None:
-            return Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
-        return Post.objects.none()
+        post_id = self.kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id, parent__isnull=True)
 
-class CommentListView(views.APIView):
-    def get(self, request, post_id, format=None):
-        comments = Comment.objects.filter(post_id=post_id, parent__isnull=True)
-        serializer = CommentSerializer(comments, many=True, context={"request": request})
-        return Response(serializer.data)
-def api_posts(request):
-    data = {"message": "This is a response from api/posts."}
-    return JsonResponse(data)
+    def perform_create(self, serializer):
+        serializer.save(member=self.request.user)
+
+# 댓글 상세 조회, 업데이트, 삭제 뷰
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return CommentCreateUpdateSerializer
+        return CommentSerializer
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class IngredientListCreateView(generics.ListCreateAPIView):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
