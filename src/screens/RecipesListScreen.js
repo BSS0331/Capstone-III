@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Recipes_Data } from '@env';
 
 const RecipesListScreen = ({ route }) => {
   const { selectedTag } = route.params;
@@ -11,7 +12,7 @@ const RecipesListScreen = ({ route }) => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const response = await fetch('http://openapi.foodsafetykorea.go.kr/api/7bd588b749bc4deca9f5/COOKRCP01/json/1/1000');
+        const response = await fetch(Recipes_Data);
         const json = await response.json();
         const filteredRecipes = json.COOKRCP01.row.filter(recipe => recipe.HASH_TAG.includes(selectedTag));
         setRecipes(filteredRecipes);

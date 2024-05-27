@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { FAB } from 'react-native-paper';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 // HomeScreen 컴포넌트
@@ -13,6 +14,13 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.searchContainer}
+        onPress={() => navigation.navigate('SearchScreen')}
+      >
+        <Ionicons name="search" size={20} color="black" />
+        <Text style={styles.searchText}>레시피 검색...</Text>
+      </TouchableOpacity>
       <Text style={styles.text}>메인메뉴 화면</Text>
       <FAB.Group  // FAB 그룹: 다양한 액션을 포함한 플로팅 액션 버튼
         open={isFabOpen}  // FAB 그룹의 열림 상태
@@ -40,6 +48,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',  // 세로 방향에서 중앙 정렬
     alignItems: 'center',  // 가로 방향에서 중앙 정렬
     backgroundColor: '#f5f5f5',  // 배경색 설정
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 25,
+    justifyContent: 'flex-start',
+    backgroundColor: 'white',
   },
   text: {
     fontSize: 18,  // 텍스트 크기 설정

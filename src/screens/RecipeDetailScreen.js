@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { Recipes_Data } from '@env';
 
 const RecipeDetailScreen = ({ route }) => {
   const [recipe, setRecipe] = useState(null);
@@ -18,7 +19,7 @@ const RecipeDetailScreen = ({ route }) => {
       }
 
       try {
-        const url = `https://openapi.foodsafetykorea.go.kr/api/7bd588b749bc4deca9f5/COOKRCP01/json/1/1000`;
+        const url = Recipes_Data;
         const response = await fetch(url);
         const json = await response.json();
         const detail = json.COOKRCP01.row.find(recipe => recipe.RCP_SEQ === recipeId);
