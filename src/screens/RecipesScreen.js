@@ -40,7 +40,7 @@ const RecipesScreen = () => {
       return () => {
         if (parent) {
           parent.setOptions({
-            tabBarStyle: { display: 'flex' },
+            tabBarStyle: { display: 'none' },
             headerShown: false,  // 헤더를 계속 숨겨둡니다.
           });
         }

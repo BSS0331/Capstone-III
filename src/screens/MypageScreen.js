@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Dimensions, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons'; // 아이콘 라이브러리 임포트
 
 // Dimensions를 사용해 현재 윈도우의 너비를 가져옴
 const { width } = Dimensions.get('window');
 
 const MypageScreen = () => {
-  
+
   // 네비게이션 훅을 사용하여 앱 내의 네비게이션 기능 접근
   const navigation = useNavigation();
 
@@ -17,28 +18,25 @@ const MypageScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
       <View style={styles.container}>
-        <TouchableOpacity  // 첫 번째 터치 가능 버튼: '설정' 이동
+        <TouchableOpacity  // 첫 번째 터치 가능 버튼: '알림' 이동
+          style={styles.button}
+          onPress={() => handlePress('Notification')}>
+          <Icon name="notifications-outline" size={24} style={styles.icon} />
+          <Text style={styles.buttonText}>알림</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity  // 두 번째 터치 가능 버튼: '문의하기' 이동
+          style={styles.button}
+          onPress={() => handlePress('Inquiry')}>
+          <Icon name="chatbox-ellipses-outline" size={24} style={styles.icon} />
+          <Text style={styles.buttonText}>문의하기</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity  // 세 번째 터치 가능 버튼: '로그인' 이동
           style={styles.button}
           onPress={() => navigation.navigate('SettingStack')}>
-          <Text style={styles.buttonText}>설정</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity  // 두 번째 터치 가능 버튼
-          style={styles.button}
-          onPress={() => handlePress('Button 2')}>
-          <Text style={styles.buttonText}>Button 2</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity  // 세 번째 터치 가능 버튼
-          style={styles.button}
-          onPress={() => handlePress('Button 3')}>
-          <Text style={styles.buttonText}>Button 3</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity  // 네 번째 터치 가능 버튼
-          style={styles.button}
-          onPress={() => handlePress('Button 4')}>
-          <Text style={styles.buttonText}>Button 4</Text>
+          <Icon name="log-in-outline" size={24} style={styles.icon} />
+          <Text style={styles.buttonText}>로그인</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -56,11 +54,16 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 요소들을 중앙에 배치
   },
   button: {
+    flexDirection: 'row', // 아이콘과 텍스트를 가로로 배치
+    alignItems: 'center', // 세로축 중앙 정렬
     backgroundColor: '#FFFFFF', // 버튼 배경색 설정
     width: width, // 화면 너비와 같은 너비 설정
     padding: 10, // 내부 패딩 설정
     borderColor: '#000000', // 테두리 색상 설정
     borderWidth: 0.3, // 테두리 두께 설정
+  },
+  icon: {
+    marginRight: 10, // 아이콘과 텍스트 사이의 간격 설정
   },
   buttonText: {
     fontSize: 24, // 텍스트 크기 설정
