@@ -14,9 +14,9 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <TouchableOpacity  // 검색 영역 생성
         style={styles.searchContainer}
-        onPress={() => navigation.navigate('SearchScreen')}
+        onPress={() => navigation.navigate('HomeSearchScreen')}
       >
         <Ionicons name="search" size={20} color="black" />
         <Text style={styles.searchText}>레시피 검색...</Text>
@@ -59,6 +59,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'flex-start',
     backgroundColor: 'white',
+  },
+  searchText: {
+    marginLeft: 10, // 아이콘과 텍스트 사이에 간격 추가
   },
   text: {
     fontSize: 18,  // 텍스트 크기 설정

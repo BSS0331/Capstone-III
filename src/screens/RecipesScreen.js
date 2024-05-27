@@ -52,11 +52,12 @@ const RecipesScreen = () => {
     <View>
       <TouchableOpacity
         style={styles.searchContainer}
-        onPress={() => navigation.navigate('SearchScreen')}
+        onPress={() => navigation.navigate('RecipesSearchScreen')}
       >
         <Ionicons name="search" size={20} color="black" />
         <Text style={styles.searchText}>레시피 검색...</Text>
       </TouchableOpacity>
+
       {mainRecipe && (
         <View style={styles.featuredRecipeContainer}>
           <Text style={styles.featuredRecipeText}>오늘의 추천 레시피</Text>
