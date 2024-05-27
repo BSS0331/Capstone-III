@@ -1,8 +1,8 @@
-  import React, { useState, useCallback } from 'react';
-  import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, SafeAreaView, Platform } from 'react-native';
-  import { useFocusEffect, useNavigation } from '@react-navigation/native';
-  import { AntDesign } from '@expo/vector-icons';
-  import { Recipes_Data } from '@env';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, SafeAreaView, Platform } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { AntDesign } from '@expo/vector-icons';
+import { Recipes_Data } from '@env';
 
   const SearchScreen = () => {
     const navigation = useNavigation();
@@ -18,20 +18,20 @@
           headerShown: false,
         });
 
-        return () => parent.setOptions({
-          tabBarStyle: { display: 'flex' },
-          headerShown: false,
-        });
-      }, [navigation])
-    );
-  
-    const fetchRecipes = async () => {
-      if (!searchQuery.trim()) return;
-      setIsLoading(true);
-      try {
-        const response = await fetch(`${Recipes_Data}?RCP_NM=${searchQuery}`);
-        const json = await response.json();
-        let filteredRecipes = json.COOKRCP01.row;
+      return () => parent.setOptions({
+        tabBarStyle: { display: 'flex' },
+        headerShown: false,
+      });
+    }, [navigation])
+  );
+ 
+  const fetchRecipes = async () => {
+    if (!searchQuery.trim()) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${Recipes_Data}?RCP_NM=${searchQuery}`);
+      const json = await response.json();
+      let filteredRecipes = json.COOKRCP01.row;
 
         // 필터링 로직
         if (searchQuery.startsWith('#')) {
