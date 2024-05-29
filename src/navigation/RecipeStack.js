@@ -7,6 +7,7 @@ import RecipesScreen from '../screens/RecipesScreen';
 import SearchScreen from '../screens/SearchScreen';
 import TagsScreen from '../screens/TagsScreen';
 import RecipesListScreen from '../screens/RecipesListScreen';
+import FridgeScreen from '../screens/FridgeScreen';
 
 const Stack = createStackNavigator();
 
@@ -50,6 +51,9 @@ const RecipesStack = () => {
       <Stack.Screen name="RecipesListScreen" 
       component={RecipesListScreen} 
       options={{ title: '요리 리스트' }} />
+      <Stack.Screen name="FridgeScreen" 
+      component={FridgeScreen} 
+      options={{ title: '내 냉장고', headerShown: false }} />
     </Stack.Navigator>
   );
 };
