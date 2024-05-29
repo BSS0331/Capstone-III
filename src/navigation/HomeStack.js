@@ -5,8 +5,9 @@ import HomeScreen from '../screens/HomeScreen';                      // 로컬 H
 import ManualEntryScreen from '../screens/ManualEntryScreen';        // 로컬 ManualEntryScreen 컴포넌트를 불러옴
 import BarcodeScreen from '../screens/BarcodeScreen';                // 로컬 BarcodeScreen 컴포넌트를 불러옴
 import ReceiptCaptureScreen from '../screens/ReceiptCaptureScreen';  // 로컬 ReceiptCaptureScreen 컴포넌트를 불러옴
-import SearchScreen from '../screens/SearchScreen';
+import SearchScreen from '../screens/SearchScreen';                  // 로컬 SearchScreen 컴포넌트를 불러옴
 import FridgeScreen from '../screens/FridgeScreen';
+
 
 const Stack = createStackNavigator();  // 스택 네비게이터 생성
 

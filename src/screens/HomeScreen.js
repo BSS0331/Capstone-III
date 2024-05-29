@@ -14,7 +14,7 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <TouchableOpacity  // 검색 영역 생성
         style={styles.searchContainer}
         onPress={() => navigation.navigate('SearchScreen', { origin: 'HomeScreen' })}
       >
