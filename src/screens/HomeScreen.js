@@ -16,12 +16,11 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.searchContainer}
-        onPress={() => navigation.navigate('SearchScreen')}
+        onPress={() => navigation.navigate('SearchScreen', { origin: 'HomeScreen' })}
       >
         <Ionicons name="search" size={20} color="black" />
         <Text style={styles.searchText}>레시피 검색...</Text>
       </TouchableOpacity>
-      <Text style={styles.text}>메인메뉴 화면</Text>
       <FAB.Group  // FAB 그룹: 다양한 액션을 포함한 플로팅 액션 버튼
         open={isFabOpen}  // FAB 그룹의 열림 상태
         icon={isFabOpen ? 'close' : 'plus'}  // FAB 아이콘 상태에 따라 아이콘 변경
@@ -30,6 +29,7 @@ const HomeScreen = () => {
           { icon: 'pencil', label: '수동 입력', onPress: () => navigation.navigate('ManualEntry'), small: false },
           { icon: 'receipt', label: '영수증', onPress: () => navigation.navigate('ReceiptCapture'), small: false },
           { icon: 'barcode', label: '바코드', onPress: () => navigation.navigate('Barcode'), small: false },
+          { icon: 'fridge', label: '내 냉장고', onPress: () => navigation.navigate('FridgeScreen'), small: false },
         ]}
         onStateChange={({ open }) => setIsFabOpen(open)}  // FAB 상태 변경 시 상태 업데이트
         onPress={() => {
@@ -59,6 +59,11 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'flex-start',
     backgroundColor: 'white',
+    position: 'absolute',  // 절대 위치로 설정
+    top: 27,  // 상단에서 10px 떨어진 위치에 설정
+    left: 0,  // 좌측에서 10px 떨어진 위치에 설정
+    right: 0,  // 우측에서 10px 떨어진 위치에 설정
+    height: 42,  // 검색창의 세로 길이를 길게 설정
   },
   text: {
     fontSize: 18,  // 텍스트 크기 설정
