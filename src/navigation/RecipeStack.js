@@ -35,14 +35,21 @@ const RecipesStack = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="RecipesHome" component={RecipesScreen} options={{ headerShown: false }} />
-      <Stack.Screen 
-        name="RecipesSearchScreen" component={SearchScreen} options={{ headerShown: false }} 
-        initialParams={{ fromScreen: 'RecipesStack' }}  // 'RecipesStack'에서 왔다는 정보를 초기 파라미터로 전달
-      />
-      <Stack.Screen name="RecipeDetailScreen" component={RecipeDetailScreen} options={{ headerShown: true, title: '조리방법' }} />
-      <Stack.Screen name="TagsScreen" component={TagsScreen} options={{ title: '태그 검색' }} />
-      <Stack.Screen name="RecipesListScreen" component={RecipesListScreen} options={{ title: '요리 리스트' }} />
+      <Stack.Screen name="RecipesHome" 
+      component={RecipesScreen} 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="SearchScreen" 
+      component={SearchScreen} 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="RecipeDetailScreen" 
+      component={RecipeDetailScreen} 
+      options={{ headerShown: true, title: '조리방법' }} />
+      <Stack.Screen name="TagsScreen" 
+      component={TagsScreen} 
+      options={{ title: '태그 검색' }} />
+      <Stack.Screen name="RecipesListScreen" 
+      component={RecipesListScreen} 
+      options={{ title: '요리 리스트' }} />
     </Stack.Navigator>
   );
 };

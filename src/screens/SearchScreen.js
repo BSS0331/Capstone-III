@@ -1,14 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, SafeAreaView, Platform } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import { Recipes_Data } from '@env';
 
-const SearchScreen = ({ route, navigation }) => {
+const SearchScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { origin } = route.params || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { fromScreen } = route.params;  // 부모 스크린 정보를 가져옴
 
   useFocusEffect(
     useCallback(() => {
@@ -24,7 +26,7 @@ const SearchScreen = ({ route, navigation }) => {
       });
     }, [navigation])
   );
- 
+
   const fetchRecipes = async () => {
     if (!searchQuery.trim()) return;
     setIsLoading(true);
@@ -54,10 +56,17 @@ const SearchScreen = ({ route, navigation }) => {
   const handleSearch = () => {
     fetchRecipes();
   };
-  
+
   const handleGoBack = () => {
-    navigation.navigate(fromScreen);  // 뒤로가기 시 부모 스크린으로 돌아갑니다.
+    if (origin === 'HomeScreen') {
+      navigation.navigate('HomeStack', { screen: 'HomeScreen' }); // TabNavigator에서 정의된 이름 사용
+    } else if (origin === 'RecipesScreen') {
+      navigation.navigate('Recipes', { screen: 'RecipesHome' }); // TabNavigator에서 정의된 이름 사용
+    } else {
+      navigation.goBack();
+    }
   };
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -128,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goBackButton: {
+  backButton: {
     padding: 10,
     alignItems: 'center',
     justifyContent: 'center',

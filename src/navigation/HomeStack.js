@@ -14,7 +14,7 @@ const HomeStack = () => {
     <Stack.Navigator>
       <Stack.Screen name="HomeStack"
       component={HomeScreen}
-      options={{ title: '메인메뉴' }}
+      options={{ title: '메인메뉴', headerShown: false }}
       />
       <Stack.Screen name="ManualEntry"
       component={ManualEntryScreen}
@@ -28,11 +28,9 @@ const HomeStack = () => {
       component={ReceiptCaptureScreen}
       options={{ title: '영수증' }}
       />
-      <Stack.Screen 
-      name="HomeSearchScreen" 
+      <Stack.Screen name="SearchScreen" 
       component={SearchScreen} 
-      options={{ headerShown: false }} 
-      initialParams={{ fromScreen: 'HomeStack' }}  // 'HomeStack'에서 왔다는 정보를 초기 파라미터로 전달
+      options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

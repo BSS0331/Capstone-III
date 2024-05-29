@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity, FlatList, StatusBar, SafeAreaView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { FAB } from 'react-native-paper';  // FAB 가져오기
 import { Recipes_Data } from '@env';
-
 
 const RecipesScreen = () => {
   const [recipes, setRecipes] = useState([]);
   const [mainRecipe, setMainRecipe] = useState(null);
+  const [isFabOpen, setIsFabOpen] = useState(false);  // FAB 상태 관리
   const navigation = useNavigation();
 
   const fetchRecipes = async () => {
@@ -52,7 +53,7 @@ const RecipesScreen = () => {
     <View>
       <TouchableOpacity
         style={styles.searchContainer}
-        onPress={() => navigation.navigate('RecipesSearchScreen')}
+        onPress={() => navigation.navigate('SearchScreen', { origin: 'RecipesScreen' })}
       >
         <Ionicons name="search" size={20} color="black" />
         <Text style={styles.searchText}>레시피 검색...</Text>
@@ -92,6 +93,20 @@ const RecipesScreen = () => {
         numColumns={2}
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={false}
+      />
+      <FAB.Group  // FAB 그룹: 다양한 액션을 포함한 플로팅 액션 버튼
+        open={isFabOpen}  // FAB 그룹의 열림 상태
+        icon={isFabOpen ? 'close' : 'plus'}  // FAB 아이콘 상태에 따라 아이콘 변경
+        color='#4E348B'  // FAB 아이콘 색상 설정
+        actions={[  // FAB 그룹에 포함된 각 액션 버튼 설정
+          { icon: 'fridge', label: '내 냉장고', onPress: () => navigation.navigate('FridgeScreen'), small: false },
+          { icon: 'tag', label: '태그검색', onPress: () => navigation.navigate('TagsScreen'), small: false },
+        ]}
+        onStateChange={({ open }) => setIsFabOpen(open)}  // FAB 상태 변경 시 상태 업데이트
+        onPress={() => {
+          setIsFabOpen(!isFabOpen);  // FAB 버튼 클릭 시 열림/닫힘 상태 토글
+        }}
+        fabStyle={styles.fab}  // FAB 커스텀 스타일 적용
       />
     </SafeAreaView>
   );
@@ -171,7 +186,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 5,
     flexWrap: 'wrap',
-  }
+  },
+  fab: {
+    backgroundColor: '#EEE8F4',  // FAB 배경색 설정
+    borderRadius: 28,  // FAB 모서리 둥글기 설정
+  },
 });
 
 export default RecipesScreen;
