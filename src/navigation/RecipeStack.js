@@ -7,6 +7,7 @@ import RecipesScreen from '../screens/RecipesScreen';
 import SearchScreen from '../screens/SearchScreen';
 import TagsScreen from '../screens/TagsScreen';
 import RecipesListScreen from '../screens/RecipesListScreen';
+import FridgeScreen from '../screens/FridgeScreen';
 
 const Stack = createStackNavigator();
 
@@ -35,11 +36,24 @@ const RecipesStack = () => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen name="RecipesHome" component={RecipesScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="RecipeDetailScreen" component={RecipeDetailScreen} options={{ headerShown: true, title: '조리방법' }} />
-      <Stack.Screen name="TagsScreen" component={TagsScreen} options={{ title: '태그 검색' }} />
-      <Stack.Screen name="RecipesListScreen" component={RecipesListScreen} options={{ title: '요리 리스트' }} />
+      <Stack.Screen name="RecipesHome" 
+      component={RecipesScreen} 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="SearchScreen" 
+      component={SearchScreen} 
+      options={{ headerShown: false }} />
+      <Stack.Screen name="RecipeDetailScreen" 
+      component={RecipeDetailScreen} 
+      options={{ headerShown: true, title: '조리방법' }} />
+      <Stack.Screen name="TagsScreen" 
+      component={TagsScreen} 
+      options={{ title: '태그 검색' }} />
+      <Stack.Screen name="RecipesListScreen" 
+      component={RecipesListScreen} 
+      options={{ title: '요리 리스트' }} />
+      <Stack.Screen name="FridgeScreen" 
+      component={FridgeScreen} 
+      options={{ title: '내 냉장고', headerShown: false }} />
     </Stack.Navigator>
   );
 };
