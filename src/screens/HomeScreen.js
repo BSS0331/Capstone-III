@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
   },
   counterText: {
     color: 'white',
-    fontsize: 0,
   },
 });
 

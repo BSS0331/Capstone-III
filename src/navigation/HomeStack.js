@@ -36,7 +36,7 @@ const HomeStack = () => {
       />
       <Stack.Screen name="FridgeScreen" 
       component={FridgeScreen} 
-      options={{ title: '내 냉장고', headerShown: false }} 
+      options={{ title: '내 냉장고', headerShown: true }} 
       />
     </Stack.Navigator>
   );

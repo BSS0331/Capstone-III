@@ -4,7 +4,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Recipes_Data } from '@env';
 
 const RecipesListScreen = ({ route }) => {
-  const { selectedTag } = route.params;
+  const selectedTag = route.params?.selectedTag; // selectedTag가 없을 경우에 대비하여 route.params.selectedTag를 사용
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -14,7 +14,12 @@ const RecipesListScreen = ({ route }) => {
       try {
         const response = await fetch(Recipes_Data);
         const json = await response.json();
-        const filteredRecipes = json.COOKRCP01.row.filter(recipe => recipe.HASH_TAG.includes(selectedTag));
+        let filteredRecipes = json.COOKRCP01.row;
+
+        if (selectedTag) {
+          filteredRecipes = filteredRecipes.filter(recipe => recipe.HASH_TAG.includes(selectedTag));
+        }
+
         setRecipes(filteredRecipes);
         setLoading(false);
       } catch (error) {
@@ -28,19 +33,15 @@ const RecipesListScreen = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
-      if (parent) {
-        parent.setOptions({
-          tabBarStyle: { display: 'none'},
-          headerShown: false,
-        });
+      parent.setOptions({
+        tabBarStyle: { display: 'flex' },
+        headerShown: false,
+      });
 
-        return () => {
-          parent.setOptions({
-            tabBarStyle: { display: 'flex' },
-            headerShown: false,
-          });
-        };
-      }
+      return () => parent.setOptions({
+        tabBarStyle: { display: 'none' },
+        headerShown: false,
+      });
     }, [navigation])
   );
 
