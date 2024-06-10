@@ -61,15 +61,21 @@ const RecipeDetailScreen = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
-      parent.setOptions({
-        tabBarStyle: { display: 'none' },
-        headerShown: false,
-      });
+      if (parent) {
+        parent.setOptions({
+          tabBarStyle: { display: 'none' },
+          headerShown: false,  // 헤더를 숨깁니다.
+        });
+      }
 
-      return () => parent.setOptions({
-        tabBarStyle: { display: 'flex' },
-        headerShown: false,
-      });
+      return () => {
+        if (parent) {
+          parent.setOptions({
+            tabBarStyle: { display: 'none' },
+            headerShown: false,  // 헤더를 계속 숨겨둡니다.
+          });
+        }
+      };
     }, [navigation])
   );
 

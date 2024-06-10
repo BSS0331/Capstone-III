@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, StatusBar, SafeAreaView, Platform, ScrollView } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
-import { Recipes_Data, API } from '@env'; // API_URL는 건들지 않습니다.
+import { Recipes_Data } from '@env'; // API_URL는 건들지 않습니다.
 
 const SearchScreen = () => {
   const navigation = useNavigation();
@@ -23,7 +23,7 @@ const SearchScreen = () => {
       });
 
       return () => parent.setOptions({
-        tabBarStyle: { display: 'flex' },
+        tabBarStyle: { display: 'none' },
         headerShown: false,
       });
     }, [navigation])

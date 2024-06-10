@@ -50,7 +50,7 @@ const RecipesStack = () => {
       options={{ title: '태그 검색' }} />
       <Stack.Screen name="RecipesListScreen" 
       component={RecipesListScreen} 
-      options={{ title: '요리 리스트' }} />
+      options={{ title: '요리 리스트', headerShown: true }} />
       <Stack.Screen name="FridgeScreen" 
       component={FridgeScreen} 
       options={{ title: '내 냉장고', headerShown: true }} />
