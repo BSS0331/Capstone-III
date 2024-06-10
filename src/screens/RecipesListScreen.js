@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Recipes_Data } from '@env';
 
@@ -44,6 +44,16 @@ const RecipesListScreen = ({ route }) => {
       });
     }, [navigation])
   );
+
+  const handleGoBack = () => {
+    if (origin === 'HomeScreen') {
+      navigation.navigate('HomeStack', { screen: 'HomeScreen' });
+    } else if (origin === 'RecipesScreen') {
+      navigation.navigate('Recipes', { screen: 'RecipesHome' });
+    } else {
+      navigation.goBack();
+    }
+  };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.recipeCard} onPress={() => navigation.navigate('RecipeDetailScreen', { recipeId: item.RCP_SEQ })}>

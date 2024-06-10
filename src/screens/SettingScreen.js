@@ -42,6 +42,7 @@ const SettingScreen = ({ navigation }) => {
       }
     } catch (e) {
       console.error('로그인 상태 확인 중 오류 발생: ', e);
+      console.error('로그인 상태 확인 중 오류 발생: ', e);
     }
   };
 
