@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API } from '@env';
 import { WebView } from 'react-native-webview';
+
 import SocialLoginButton from '../components/common/SocialLoginButton';
 
 const SettingScreen = ({ navigation }) => {
@@ -69,6 +70,7 @@ const SettingScreen = ({ navigation }) => {
         console.log('refreshToken 저장:', data.refresh); // 토큰 저장 확인 로그
         setIsLoggedIn(true);
         console.log('로그인 성공');
+        navigation.navigate('MypageScreen'); // 로그인 성공 시 MypageScreen으로 이동
       } else {
         console.log('로그인 실패: ', data.message);
         alert(data.message);
@@ -125,17 +127,9 @@ const SettingScreen = ({ navigation }) => {
     }
   };
 
-  const handleLogout = async () => {
-    console.log('로그아웃 버튼 클릭됨');
-    await AsyncStorage.removeItem('accessToken');
-    await AsyncStorage.removeItem('refreshToken');
-    setIsLoggedIn(false);
-    console.log('로그아웃 성공');
-  };
 
   return (
     <View style={styles.container}>
-      {!isLoggedIn ? (
         <>
           <TextInput
             style={styles.input}
@@ -170,17 +164,7 @@ const SettingScreen = ({ navigation }) => {
             />
           </View>
         </>
-      ) : (
-        <View style={styles.loggedInContainer}>
-          <Text style={styles.welcomeText}>환영합니다, {id}님!</Text>
-          <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('ProfileEdit')}>
-            <Text style={styles.editProfileButtonText}>프로필 수정</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutButtonText}>로그아웃</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+
 
       <Modal visible={showWebView} transparent={true} animationType="slide">
         <View style={styles.webViewContainer}>

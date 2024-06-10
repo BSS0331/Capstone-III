@@ -20,7 +20,7 @@ const HomeStack = () => {
       />
       <Stack.Screen name="ManualEntry"
       component={ManualEntryScreen}
-      options={{ title: '수동 입력' }}
+      options={{ title: '수동 입력', headerShown: false }}
       />
       <Stack.Screen name="Barcode"
       component={BarcodeScreen}
