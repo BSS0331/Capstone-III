@@ -1,15 +1,48 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Dimensions, StatusBar, SafeAreaView, Platform } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons'; // 아이콘 라이브러리 임포트
+import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage 임포트
 
 // Dimensions를 사용해 현재 윈도우의 너비를 가져옴
 const { width } = Dimensions.get('window');
 
 const MypageScreen = () => {
-
   // 네비게이션 훅을 사용하여 앱 내의 네비게이션 기능 접근
   const navigation = useNavigation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태를 관리하는 상태 변수
+
+  // 로그인 상태를 확인하는 함수
+  const checkLogin = async () => {
+    try {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      if (accessToken) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    } catch (e) {
+      console.error('로그인 상태 확인 중 오류 발생: ', e);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      checkLogin();
+    }, [])
+  );
+
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('refreshToken');
+      setIsLoggedIn(false);
+      console.log('로그아웃 성공');
+    } catch (e) {
+      console.error('로그아웃 중 오류 발생: ', e);
+    }
+  };
 
   // 버튼이 눌렸을 때의 동작을 정의하는 함수
   const handlePress = (btnName) => console.log(`${btnName} pressed`); // 콘솔에 어떤 버튼이 눌렸는지 출력
@@ -32,12 +65,21 @@ const MypageScreen = () => {
           <Text style={styles.buttonText}>문의하기</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity  // 세 번째 터치 가능 버튼: '로그인' 이동
-          style={styles.button}
-          onPress={() => navigation.navigate('SettingStack')}>
-          <Icon name="log-in-outline" size={24} style={styles.icon} />
-          <Text style={styles.buttonText}>로그인</Text>
-        </TouchableOpacity>
+        {isLoggedIn ? (
+          <TouchableOpacity  // 로그인된 경우 로그아웃 버튼
+            style={styles.button}
+            onPress={handleLogout}>
+            <Icon name="log-out-outline" size={24} style={styles.icon} />
+            <Text style={styles.buttonText}>로그아웃</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity  // 로그인되지 않은 경우 로그인 버튼
+            style={styles.button}
+            onPress={() => navigation.navigate('SettingStack')}>
+            <Icon name="log-in-outline" size={24} style={styles.icon} />
+            <Text style={styles.buttonText}>로그인</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );  

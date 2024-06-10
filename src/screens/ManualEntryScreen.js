@@ -37,9 +37,9 @@ const ManualEntryScreen = ({ navigation }) => {
   const [categoryItems, setCategoryItems] = useState([ // 카테고리 드롭다운 항목들
     { label: '과일', value: '과일' },
     { label: '채소', value: '채소' },
-    { label: '유제품', value: '유제품' },
+    { label: '유제품 및 우유', value: '유제품 및 우유' },
     { label: '육류 및 계란', value: '육류 및 계란' },
-    { label: '곡류', value: '곡류' }
+    { label: '가공식품', value: '가공식품' }
   ]);
   const [storageItems, setStorageItems] = useState([ // 보관 조건 드롭다운 항목들
     { label: '냉장', value: '냉장' },
@@ -134,7 +134,7 @@ const ManualEntryScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container} scrollEnabled={!openCategory && !openStorage}>
         <Text style={styles.label}>음식 이름 <Text style={styles.required}>*</Text></Text>
         <TextInput
           style={styles.input}
@@ -152,7 +152,8 @@ const ManualEntryScreen = ({ navigation }) => {
           setItems={setCategoryItems}
           placeholder="카테고리 선택"
           style={styles.input}
-          dropDownStyle={{ backgroundColor: '#fff' }}
+          dropDownContainerStyle={{ backgroundColor: '#fff' }}
+          onOpen={() => setOpenStorage(false)}
         />
         <Text style={styles.label}>수량 <Text style={styles.required}>*</Text></Text>
         <TextInput
@@ -175,7 +176,7 @@ const ManualEntryScreen = ({ navigation }) => {
           <DateTimePicker
             value={purchaseDate}
             mode="date"
-            display="default"
+            // display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={onChangePurchaseDate}
           />
         )}
@@ -192,7 +193,7 @@ const ManualEntryScreen = ({ navigation }) => {
           <DateTimePicker
             value={expirationDate}
             mode="date"
-            display="default"
+            // display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             onChange={onChangeExpirationDate}
           />
         )}
@@ -206,7 +207,8 @@ const ManualEntryScreen = ({ navigation }) => {
           setItems={setStorageItems}
           placeholder="보관 조건 선택"
           style={styles.input}
-          dropDownStyle={{ backgroundColor: '#fff' }}
+          dropDownContainerStyle={{ backgroundColor: '#fff' }}
+          onOpen={() => setOpenCategory(false)}
         />
         <Text style={styles.label}>메모</Text>
         <TextInput
@@ -231,51 +233,51 @@ const ManualEntryScreen = ({ navigation }) => {
 // 스타일 정의
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
+    flexGrow: 1, // 컨테이너가 가득 차도록 설정
+    padding: 20, // 패딩 20 설정
+    justifyContent: 'center', // 중앙 정렬
+    backgroundColor: '#fff', // 배경 흰색 설정
   },
   label: {
-    fontSize: 16,
-    marginBottom: 8,
-    color: '#333',
+    fontSize: 16, // 글씨 크기 16 설정
+    marginBottom: 8, // 아래 여백 8 설정
+    color: '#333', // 글씨 색상 설정
   },
   required: {
-    color: 'red',
+    color: 'red', // 필수 입력 표시 빨간색 설정
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    height: 40, // 높이 40 설정
+    borderColor: '#ccc', // 테두리 색상 설정
+    borderWidth: 1, // 테두리 두께 1 설정
+    marginBottom: 20, // 아래 여백 20 설정
+    paddingHorizontal: 10, // 수평 패딩 10 설정
+    borderRadius: 5, // 모서리 둥글게 설정
   },
   dateInput: {
     color: '#000', // 검정색 글씨로 보이도록 설정
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'row', // 버튼들을 가로로 배치
+    justifyContent: 'space-between', // 버튼들 사이에 공간을 균등하게 배분
   },
   button: {
-    flex: 1,
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    margin: 5,
-    alignItems: 'center',
-    borderRadius: 5,
+    flex: 1, // 버튼이 가로로 균등하게 차지하도록 설정
+    backgroundColor: '#4CAF50', // 배경 색상 설정
+    padding: 10, // 패딩 10 설정
+    margin: 5, // 여백 5 설정
+    alignItems: 'center', // 중앙 정렬
+    borderRadius: 5, // 모서리 둥글게 설정
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: '#fff', // 글씨 색상 설정
+    fontSize: 16, // 글씨 크기 16 설정
   },
   cancelButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: '#f44336', // 배경 색상 설정
   },
   cancelButtonText: {
-    color: '#fff',
+    color: '#fff', // 글씨 색상 설정
   },
 });
 
