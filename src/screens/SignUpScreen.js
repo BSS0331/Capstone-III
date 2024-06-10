@@ -1,27 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { API } from '@env';
+console.log('API:', API); // URL 확인을 위한 로그
 
-// SignUpScreen 컴포넌트: 사용자 등록 입력 및 유효성 검사 관리
-const SignUpScreen = () => {
-  // 폼 입력값과 에러 메시지 관리를 위한 상태 설정
+const SignUpScreen = ({ navigation }) => {
   const [name, setName] = useState('');
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');  // 성공 메시지 상태 추가
 
-  // 제출 전 입력값 유효성 검사
   const validateInput = () => {
     let isValid = true;
     let newErrors = {};
 
-    // 각 입력 필드에 대한 검증 규칙
     if (!name) {
-      newErrors.general = "사용할 닉네임을 입력해 주세요.";
+      newErrors.name = "사용할 닉네임을 입력해 주세요.";
       isValid = false;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userId)) {
-      newErrors.userId = "올바른 이메일 형식이 아닙니다.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "올바른 이메일 형식이 아닙니다.";
       isValid = false;
     }
     if (!password) {
@@ -35,46 +34,78 @@ const SignUpScreen = () => {
       newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
       isValid = false;
     }
-    
-    setErrors(newErrors); // 새로운 에러로 에러 상태 업데이트
-    return isValid; // 유효성 검사 결과 반환
+
+    setErrors(newErrors);
+    return isValid;
   };
 
-  // 폼 제출 핸들러
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    console.log('가입하기 버튼 클릭됨');  // 버튼 클릭 로그 추가
     if (validateInput()) {
-      // 회원가입 성공 처리 로직 (예: API 호출)
+      try {
+        console.log('유효성 검사 통과');
+        console.log('API 요청 보냄: ', `${API}/accounts/signup/`);  // 요청 URL 로그
+        const response = await fetch(`${API}/accounts/signup/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: name,
+            email: email,
+            password: password,
+          }),
+        });
+        console.log('API 요청 보냄: ', `${API}/accounts/signup/`);  // 요청 URL 로그
+        const data = await response.json();
+        console.log('API 응답 받음: ', data);  // 응답 로그
+        if (response.status === 201) {
+          console.log('가입 성공');  // 가입 성공 로그 추가
+          setSuccessMessage('로그인 성공');
+          // navigation.navigate('LoginScreen');
+        } else {
+          console.log('가입 실패: ', data.message);  // 가입 실패 로그 추가
+          setErrors({ general: data.message });
+        }
+      } catch (error) {
+        console.log('가입 요청 중 오류 발생: ', error);  // 오류 발생 로그 추가
+        setErrors({ general: 'An error occurred. Please try again.' });
+      } 
+    } else {
+      console.log('유효성 검사 실패');  // 유효성 검사 실패 로그 추가
     }
   };
 
   return (
     <View style={styles.container}>
-      <TextInput 
+      <TextInput
         placeholder="닉네임"
         value={name}
-        onChangeText={text => { setName(text); setErrors(prev => ({ ...prev, general: null })); }}
+        onChangeText={text => { setName(text); setErrors(prev => ({ ...prev, name: null })); }}
         style={styles.input}
       />
-      {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
-      <TextInput 
+      {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+      <TextInput
         placeholder="이메일"
-        value={userId}
-        onChangeText={text => { setUserId(text); setErrors(prev => ({ ...prev, userId: null })); }}
+        value={email}
+        onChangeText={text => { setEmail(text); setErrors(prev => ({ ...prev, email: null })); }}
         style={styles.input}
       />
-      {errors.userId && <Text style={styles.errorText}>{errors.userId}</Text>}
-      <TextInput 
+      {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+      <TextInput
         placeholder="비밀번호"
         value={password}
         onChangeText={text => { setPassword(text); setErrors(prev => ({ ...prev, password: null })); }}
         style={styles.input}
+        secureTextEntry
       />
       {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-      <TextInput 
+      <TextInput
         placeholder="비밀번호 확인"
         value={confirmPassword}
         onChangeText={text => { setConfirmPassword(text); setErrors(prev => ({ ...prev, confirmPassword: null })); }}
         style={styles.input}
+        secureTextEntry
       />
       {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
       <TouchableOpacity onPress={handleSubmit} style={styles.button}>
@@ -84,37 +115,42 @@ const SignUpScreen = () => {
   );
 };
 
-// 컴포넌트 스타일 시트: UI 요소의 스타일 정의
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // 가능한 모든 공간을 차지
-    justifyContent: 'center', // 자식 요소를 수직 방향 중앙에 배치
-    alignItems: 'center', // 자식 요소를 수평 방향 중앙에 배치
-    padding: 20, // 컨테이너의 모든 측면에 20의 패딩 적용
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   input: {
-    width: '100%', // 컨테이너의 전체 너비 사용
-    marginVertical: 8, // 입력 필드 간 수직 마진
-    borderWidth: 1, // 테두리 두께
-    borderColor: '#ccc', // 테두리 색상
-    padding: 10, // 입력 필드 내부 패딩
-    borderRadius: 5, // 입력 필드 모서리 둥글기
+    width: '100%',
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 5,
   },
   errorText: {
-    width: '100%', // 에러 텍스트는 입력 필드의 전체 너비를 차지
-    color: 'red', // 에러 메시지의 색상
-    fontSize: 12, // 에러 메시지의 폰트 크기
-    marginBottom: 5, // 에러 텍스트 아래 여백
+    width: '100%',
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 5,
+  },
+  successText: {  // 성공 메시지 스타일
+    width: '100%',
+    color: 'green',
+    fontSize: 16,
+    marginTop: 10,
   },
   button: {
-    marginTop: 20, // 버튼 위 여백
-    backgroundColor: '#EEE8F4', // 버튼의 배경 색상
-    padding: 15, // 버튼 내부 패딩
-    borderRadius: 5, // 버튼 모서리 둥글기
-    alignItems: 'center', // 버튼 내 텍스트 수평 중앙 정렬
+    marginTop: 20,
+    backgroundColor: '#EEE8F4',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
   },
   buttonText: {
-    color: '#4E348B', // 버튼 텍스트 색상
+    color: '#4E348B',
   }
 });
 
