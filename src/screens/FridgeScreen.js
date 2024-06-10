@@ -18,21 +18,11 @@ const FridgeScreen = ({navigation}) => {
     }, [navigation])
   );
 
-
-
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>냉장고 화면</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default FridgeScreen;
