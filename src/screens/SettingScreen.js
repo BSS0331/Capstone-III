@@ -32,14 +32,16 @@ const SettingScreen = ({ navigation }) => {
   const checkLogin = async () => {
     try {
       console.log('로그인 상태 확인 중...');
-      const userId = await AsyncStorage.getItem('userId');
-      if (userId) {
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      console.log('accessToken:', accessToken); // 토큰 값 확인 로그
+      if (accessToken) {
         setIsLoggedIn(true);
         console.log('로그인 상태입니다.');
       } else {
         console.log('로그인 상태가 아닙니다.');
       }
     } catch (e) {
+      console.error('로그인 상태 확인 중 오류 발생: ', e);
       console.error('로그인 상태 확인 중 오류 발생: ', e);
     }
   };
@@ -61,7 +63,10 @@ const SettingScreen = ({ navigation }) => {
       const data = await response.json();
       console.log('API 응답 받음: ', data);
       if (response.status === 200) {
-        await AsyncStorage.setItem('userId', id);
+        await AsyncStorage.setItem('accessToken', data.access); // accessToken 저장
+        await AsyncStorage.setItem('refreshToken', data.refresh); // refreshToken 저장
+        console.log('accessToken 저장:', data.access); // 토큰 저장 확인 로그
+        console.log('refreshToken 저장:', data.refresh); // 토큰 저장 확인 로그
         setIsLoggedIn(true);
         console.log('로그인 성공');
       } else {
@@ -100,7 +105,10 @@ const SettingScreen = ({ navigation }) => {
         const data = await response.json();
         console.log(`${socialType} 콜백 응답 받음: `, data);
         if (response.status === 200 && data.access_token) {
-          await AsyncStorage.setItem('userId', `${socialType}User`);
+          await AsyncStorage.setItem('accessToken', data.access); // accessToken 저장
+          await AsyncStorage.setItem('refreshToken', data.refresh); // refreshToken 저장
+          console.log('accessToken 저장:', data.access); // 토큰 저장 확인 로그
+          console.log('refreshToken 저장:', data.refresh); // 토큰 저장 확인 로그
           setIsLoggedIn(true);
           console.log(`${socialType}User 로그인 성공`);
         } else {
@@ -119,7 +127,8 @@ const SettingScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     console.log('로그아웃 버튼 클릭됨');
-    await AsyncStorage.removeItem('userId');
+    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('refreshToken');
     setIsLoggedIn(false);
     console.log('로그아웃 성공');
   };
