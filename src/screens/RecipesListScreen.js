@@ -34,7 +34,7 @@ const RecipesListScreen = ({ route }) => {
     useCallback(() => {
       const parent = navigation.getParent();
       parent.setOptions({
-        tabBarStyle: { display: 'flex' },
+        tabBarStyle: { display: 'none' },
         headerShown: false,
       });
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
-    backgroundColor: '#f9c2ff',
+    backgroundColor: 'gray',
     borderRadius: 10,
   },
   recipeTitle: {
