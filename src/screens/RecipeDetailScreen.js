@@ -61,19 +61,15 @@ const RecipeDetailScreen = ({ route }) => {
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
-      if (parent) {
-        parent.setOptions({
-          tabBarStyle: { display: 'none'},
-          headerShown: false,
-        });
+      parent.setOptions({
+        tabBarStyle: { display: 'none' },
+        headerShown: false,
+      });
 
-        return () => {
-          parent.setOptions({
-            tabBarStyle: undefined,
-
-          });
-        };
-      }
+      return () => parent.setOptions({
+        tabBarStyle: { display: 'flex' },
+        headerShown: false,
+      });
     }, [navigation])
   );
 

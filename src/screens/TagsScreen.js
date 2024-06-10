@@ -53,22 +53,24 @@ const TagsScreen = () => {
     }
   };
 
-  useFocusEffect(
+   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
       if (parent) {
         parent.setOptions({
           tabBarStyle: { display: 'none' },
-          headerShown: false,
+          headerShown: false,  // 헤더를 숨깁니다.
         });
-
-        return () => {
-          parent.setOptions({
-            tabBarStyle: { display: 'flex' },
-            headerShown: false,
-          });
-        };
       }
+
+      return () => {
+        if (parent) {
+          parent.setOptions({
+            tabBarStyle: { display: 'none' },
+            headerShown: false,  // 헤더를 계속 숨겨둡니다.
+          });
+        }
+      };
     }, [navigation])
   );
 

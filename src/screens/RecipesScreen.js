@@ -72,7 +72,7 @@ const RecipesScreen = () => {
         <Text style={styles.sectionTitle}>알면 좋은 레시피</Text>
         <TouchableOpacity onPress={() => navigation.navigate('RecipesListScreen')}>
           <Text style={styles.moreText}>더보기</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> 
       </View>
     </View>
   );
@@ -99,8 +99,8 @@ const RecipesScreen = () => {
         icon={isFabOpen ? 'close' : 'plus'}  // FAB 아이콘 상태에 따라 아이콘 변경
         color='#4E348B'  // FAB 아이콘 색상 설정
         actions={[  // FAB 그룹에 포함된 각 액션 버튼 설정
-          { icon: 'fridge', label: '내 냉장고', onPress: () => navigation.navigate('FridgeScreen'), small: false },
           { icon: 'tag', label: '태그검색', onPress: () => navigation.navigate('TagsScreen'), small: false },
+          { icon: 'fridge', label: '내 냉장고', onPress: () => navigation.navigate('FridgeScreen'), small: false },
         ]}
         onStateChange={({ open }) => setIsFabOpen(open)}  // FAB 상태 변경 시 상태 업데이트
         onPress={() => {
