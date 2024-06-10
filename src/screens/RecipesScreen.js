@@ -70,7 +70,7 @@ const RecipesScreen = () => {
       )}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>알면 좋은 레시피</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('TagsScreen')}>
+        <TouchableOpacity onPress={() => navigation.navigate('RecipesListScreen')}>
           <Text style={styles.moreText}>더보기</Text>
         </TouchableOpacity>
       </View>

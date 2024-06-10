@@ -53,7 +53,7 @@ const RecipesStack = () => {
       options={{ title: '요리 리스트' }} />
       <Stack.Screen name="FridgeScreen" 
       component={FridgeScreen} 
-      options={{ title: '내 냉장고', headerShown: false }} />
+      options={{ title: '내 냉장고' }} />
     </Stack.Navigator>
   );
 };
