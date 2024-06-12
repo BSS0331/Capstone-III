@@ -40,6 +40,8 @@ class User(AbstractBaseUser):
     # Django가 사용자 모델에 대해 필요로 하는 필드
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)  # is_staff 필드를 추가합니다.
+    is_superuser = models.BooleanField(default=False)  # is_superuser 필드를 추가합니다.
 
     # 사용자의 'username' 필드를 'email' 필드로 사용하도록 설정
     USERNAME_FIELD = 'email'
@@ -48,15 +50,17 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-    @property
-    def is_staff(self):
-        return self.is_admin
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
 
 # 게시물을 나타내는 모델입니다.
 class Post(models.Model):
     member = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     title = models.CharField(max_length=255)  # 게시물의 제목
-    content = models.TextField()  # 게시물의 내용
+    content = models.TextField()  # 게시물의 내용 (이미지 URL 포함)
     creation_date = models.DateTimeField(auto_now_add=True)  # 게시물의 생성 날짜
 
     def __str__(self):

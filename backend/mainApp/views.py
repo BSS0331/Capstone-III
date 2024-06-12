@@ -1,32 +1,32 @@
-from django.shortcuts import render, redirect
-import os
-import secrets
-import requests
-from django.http import JsonResponse
-from django.conf import settings
-from rest_framework import status, generics, permissions, views
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import get_user_model
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, PostSerializer, PostCreateUpdateSerializer, CommentSerializer, CommentCreateUpdateSerializer
-from .models import Post, Comment
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import generics, permissions
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Category, Ingredient
-from .serializers import CategorySerializer, IngredientSerializer
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.core.files.storage import default_storage
+from .models import Post, Comment, Category, Ingredient, User
+from .serializers import PostSerializer, PostCreateUpdateSerializer, CommentSerializer, CommentCreateUpdateSerializer, CategorySerializer, IngredientSerializer, UserRegistrationSerializer, UserLoginSerializer
+from django.contrib.auth import authenticate, login
+from rest_framework.authtoken.models import Token
+from django.shortcuts import redirect
+import requests
+import secrets
+from django.conf import settings
 
+class SignupView(APIView):
+    permission_classes = [permissions.AllowAny]
 
-# 사용자 회원가입 API
-class SignupView(views.APIView):
     def post(self, request, *args, **kwargs):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=201)
+        return Response(serializer.errors, status=400)
 
-# 사용자 로그인 API
-class LoginView(views.APIView):
+class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -35,9 +35,10 @@ class LoginView(views.APIView):
             user = authenticate(request, email=email, password=password)
             if user:
                 login(request, user)
-                return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
-            return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({'token': token.key}, status=200)
+            return Response({'message': 'Invalid credentials'}, status=401)
+        return Response(serializer.errors, status=400)
 
 # Google 로그인 및 콜백 처리
 def google_login(request):
@@ -46,6 +47,20 @@ def google_login(request):
         'redirect_uri': settings.GOOGLE_REDIRECT_URI,
         'response_type': 'code',
         'scope': 'email profile'
+    }
+    auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
+    return redirect(auth_url)
+
+@api_view(['GET'])
+def initiate_auth(request):
+    state = secrets.token_urlsafe()
+    request.session['oauth_state'] = state
+    params = {
+        'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+        'response_type': 'code',
+        'scope': 'email profile',
+        'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
+        'state': state
     }
     auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
     return redirect(auth_url)
@@ -86,7 +101,6 @@ def naver_login(request):
     url = f'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={settings.NAVER_CLIENT_ID}&redirect_uri={settings.NAVER_REDIRECT_URI}'
     return redirect(url)
 
-@api_view(['GET'])
 def naver_callback(request):
     code = request.GET.get('code')
     state = request.GET.get('state')
@@ -121,16 +135,15 @@ def naver_callback(request):
         'email': email
     })
 
-# 게시물 리스트 조회 및 생성 뷰
 class PostListView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-creation_date")
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(member=self.request.user)
+        content = self.request.data.get('content', '')
+        serializer.save(member=self.request.user, content=content)
 
-# 게시물 상세 조회, 업데이트, 삭제 뷰
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -140,7 +153,6 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
             return PostCreateUpdateSerializer
         return PostSerializer
 
-# 댓글 리스트 조회 및 생성 뷰
 class CommentListView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -152,7 +164,6 @@ class CommentListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(member=self.request.user)
 
-# 댓글 상세 조회, 업데이트, 삭제 뷰
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -179,3 +190,10 @@ class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+@api_view(['POST'])
+def upload_image(request):
+    file = request.FILES['file']
+    file_name = default_storage.save(file.name, file)
+    file_url = default_storage.url(file_name)
+    return Response({'file_url': file_url}, status=201)

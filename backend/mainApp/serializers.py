@@ -1,13 +1,5 @@
-# rest_framework 모듈에서 serializers를 임포트합니다.
-from mainApp.models import (
-    Post,
-    Comment,
-)  # models.py 파일에서 Post와 Comment 모델을 임포트합니다.
-
-
 from rest_framework import serializers
-from mainApp.models import User
-from .models import Category, Ingredient
+from .models import Post, Comment, User, Category, Ingredient
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -27,6 +19,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
 # Comment 모델을 위한 시리얼라이저를 정의합니다.
 class CommentSerializer(serializers.ModelSerializer):
     # SerializerMethodField는 get_<field_name> 메서드의 결과를 필드의 값으로 사용합니다.
@@ -49,7 +42,6 @@ class CommentSerializer(serializers.ModelSerializer):
             "replies",
         )  # 시리얼라이징할 필드를 명시합니다.
 
-
 # Post 모델을 위한 시리얼라이저를 정의합니다.
 class PostSerializer(serializers.ModelSerializer):
     # 게시물에 대한 최상위 댓글만을 가져오기 위한 SerializerMethodField를 정의합니다.
@@ -69,6 +61,7 @@ class PostSerializer(serializers.ModelSerializer):
             "title",
             "content",
             "comments",
+            "creation_date",
         )
 
 # Post 생성 및 업데이트 시리얼라이저
