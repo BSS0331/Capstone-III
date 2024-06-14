@@ -84,6 +84,7 @@ const SettingScreen = ({ navigation }) => {
   const handleSocialLogin = (socialType) => {
     console.log(`${socialType} 로그인 실행`);
     const loginUrl = `${API}/accounts/${socialType.toLowerCase()}/login/`;
+    console.log(loginUrl)
     setSocialType(socialType);
     setSocialLoginUrl(loginUrl);
     setShowWebView(true);

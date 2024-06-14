@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TouchableOpacity, SafeAreaView, StatusBar, Platform } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TouchableOpacity, SafeAreaView, StatusBar, Platform, FlatList } from 'react-native';
 import { FAB } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Recipes_Data } from '@env';
 
 const { width } = Dimensions.get('window');
 
+// 이미지를 require로 불러오기
 const images = [
-  { id: 1, src: 'https://via.placeholder.com/300x500.png?text=Image+1' },
-  { id: 2, src: 'https://via.placeholder.com/300x500.png?text=Image+2' },
-  { id: 3, src: 'https://via.placeholder.com/300x500.png?text=Image+3' },
-  { id: 4, src: 'https://via.placeholder.com/300x500.png?text=Image+4' },
-  { id: 5, src: 'https://via.placeholder.com/300x500.png?text=Image+5' }
+  { id: 1, src: require('../assets/images/im.png') },
+  { id: 2, src: require('../assets/images/im2.png') },
+  { id: 3, src: require('../assets/images/im.png') },
+  { id: 4, src: require('../assets/images/im1.png') },
+  { id: 5, src: require('../assets/images/im.png') }
 ];
 
 const HomeScreen = () => {
@@ -23,13 +25,30 @@ const HomeScreen = () => {
   const intervalRef = useRef(null);
   const timeoutRef = useRef(null);
 
+  const [recipes, setRecipes] = useState([]);
+
   useEffect(() => {
     startAutoSlide();
+    fetchSeasonalFruitRecipes();
     return () => {
       clearInterval(intervalRef.current);
       clearTimeout(timeoutRef.current);
     };
   }, []);
+
+  const fetchSeasonalFruitRecipes = async () => {
+    try {
+      const response = await fetch(Recipes_Data);
+      const json = await response.json();
+      if (json.COOKRCP01.row.length > 0) {
+        // 과일이 포함된 레시피만 필터링
+        const fruitRecipes = json.COOKRCP01.row.filter(recipe => recipe.RCP_PARTS_DTLS.includes('과일'));
+        setRecipes(fruitRecipes.slice(0, 8)); // 첫 번째 8개의 과일 레시피만 가져옴
+      }
+    } catch (error) {
+      console.error('레시피를 불러오는 중 오류가 발생했습니다:', error);
+    }
+  };
 
   const startAutoSlide = () => {
     intervalRef.current = setInterval(() => {
@@ -73,32 +92,55 @@ const HomeScreen = () => {
           <Ionicons name="search" size={20} color="black" />
           <Text style={styles.searchText}>레시피 검색...</Text>
         </TouchableOpacity>
-        <View style={styles.imageBox}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            ref={scrollViewRef}
-            onMomentumScrollEnd={(event) => {
-              const index = Math.floor(event.nativeEvent.contentOffset.x / width);
-              setCurrentIndex(index);
-              resetAutoSlide();
-            }}
-            onTouchStart={stopAutoSlide}
-            onTouchEnd={resetAutoSlide}
-            style={styles.scrollView}
-            contentContainerStyle={styles.scrollViewContent}
-          >
-            {images.map((image) => (
-              <View style={styles.imageContainer} key={image.id}>
-                <Image source={{ uri: image.src }} style={styles.image} />
-                <View style={styles.counter}>
-                  <Text style={styles.counterText}>{`${currentIndex + 1}/5`}</Text>
-                </View>
+
+        {/* 이미지 슬라이더 섹션 */}
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          ref={scrollViewRef}
+          onMomentumScrollEnd={(event) => {
+            const index = Math.floor(event.nativeEvent.contentOffset.x / width);
+            setCurrentIndex(index);
+            resetAutoSlide();
+          }}
+          onTouchStart={stopAutoSlide}
+          onTouchEnd={resetAutoSlide}
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContent}
+        >
+          {images.map((image) => (
+            <View style={styles.imageContainer} key={image.id}>
+              <Image source={image.src} style={styles.image} />
+              <View style={styles.counter}>
+                <Text style={styles.counterText}>{`${currentIndex + 1}/5`}</Text>
               </View>
-            ))}
-          </ScrollView>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* 제철 과일 레시피 추천 섹션 */}
+        <View style={styles.recommendationContainer}>
+          <Text style={styles.recommendationTitle}>제철 과일 레시피 추천</Text>
+          <FlatList
+            data={recipes}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.recipeCard}
+                onPress={() => navigation.navigate('RecipeDetailScreen', { recipeId: item.RCP_SEQ })}
+              >
+                <Image source={{ uri: item.ATT_FILE_NO_MAIN }} style={styles.recipeImage} />
+                <Text style={styles.recipeName}>{item.RCP_NM}</Text>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.RCP_SEQ.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+          />
         </View>
+
+        {/* FAB 메뉴 */}
         <FAB.Group
           open={isFabOpen}
           icon={isFabOpen ? 'close' : 'plus'}
@@ -141,30 +183,27 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'flex-start',
     backgroundColor: 'white',
-    position: 'absolute', 
-    top: 0, 
+    position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
-    zIndex: 1,  // 검색창을 가장 위에 위치하게 설정
+    zIndex: 1, // 검색창이 다른 요소 위에 있도록 설정
   },
   searchText: {
-    marginLeft: 0,
+    marginLeft: 10,
   },
   fab: {
     backgroundColor: '#EEE8F4',
     borderRadius: 28,
+    marginBottom: 16,
   },
   scrollView: {
     width: width,
-    height: 300, 
+    height: 300,
   },
   scrollViewContent: {
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  imageBox: {
-    marginTop: 0,
-    marginBottom: 350,
   },
   imageContainer: {
     width: width,
@@ -172,8 +211,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: 300, 
-    height: 120, 
+    width: 300,
+    height: 120,
     resizeMode: 'cover',
   },
   counter: {
@@ -186,6 +225,33 @@ const styles = StyleSheet.create({
   },
   counterText: {
     color: 'white',
+  },
+  recommendationContainer: {
+    width: width,
+    paddingVertical: 20,
+    marginTop: 20, // 여백 추가
+  },
+  recommendationTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  recipeCard: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  recipeImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+  },
+  recipeName: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 5,
+    flexWrap: 'wrap',
   },
 });
 
