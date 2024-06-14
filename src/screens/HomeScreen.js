@@ -7,12 +7,13 @@ import { Recipes_Data } from '@env';
 
 const { width } = Dimensions.get('window');
 
+// 이미지를 require로 불러오기
 const images = [
-  { id: 1, src: 'https://via.placeholder.com/300x500.png?text=Image+1' },
-  { id: 2, src: 'https://via.placeholder.com/300x500.png?text=Image+2' },
-  { id: 3, src: 'https://via.placeholder.com/300x500.png?text=Image+3' },
-  { id: 4, src: 'https://via.placeholder.com/300x500.png?text=Image+4' },
-  { id: 5, src: 'https://via.placeholder.com/300x500.png?text=Image+5' }
+  { id: 1, src: require('../assets/images/im.png') },
+  { id: 2, src: require('../assets/images/im2.png') },
+  { id: 3, src: require('../assets/images/im.png') },
+  { id: 4, src: require('../assets/images/im1.png') },
+  { id: 5, src: require('../assets/images/im.png') }
 ];
 
 const HomeScreen = () => {
@@ -110,7 +111,7 @@ const HomeScreen = () => {
         >
           {images.map((image) => (
             <View style={styles.imageContainer} key={image.id}>
-              <Image source={{ uri: image.src }} style={styles.image} />
+              <Image source={image.src} style={styles.image} />
               <View style={styles.counter}>
                 <Text style={styles.counterText}>{`${currentIndex + 1}/5`}</Text>
               </View>
