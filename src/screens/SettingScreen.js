@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';  // 임시
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API } from '@env';
+import { WebView } from 'react-native-webview';
 
 import SocialLoginButton from '../components/common/SocialLoginButton';
 
@@ -9,14 +11,11 @@ const SettingScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       const parent = navigation.getParent();
-
       parent.setOptions({
         tabBarStyle: { display: 'none' },
         headerShown: false,
       });
-
       checkLogin();
-
       return () => parent.setOptions({
         tabBarStyle: undefined,
       });
@@ -26,41 +25,111 @@ const SettingScreen = ({ navigation }) => {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [socialLoginUrl, setSocialLoginUrl] = useState(null);
+  const [showWebView, setShowWebView] = useState(false);
+  const [socialType, setSocialType] = useState('');
+  const [loading, setLoading] = useState(true); // 웹뷰 로드 상태 확인을 위한 상태
 
-  // 로그인 확인
   const checkLogin = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (userId) {
+      console.log('로그인 상태 확인 중...');
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      console.log('accessToken:', accessToken); // 토큰 값 확인 로그
+      if (accessToken) {
         setIsLoggedIn(true);
+        console.log('로그인 상태입니다.');
+      } else {
+        console.log('로그인 상태가 아닙니다.');
       }
     } catch (e) {
-      console.error(e);
+      console.error('로그인 상태 확인 중 오류 발생: ', e);
+      console.error('로그인 상태 확인 중 오류 발생: ', e);
     }
   };
 
-  // 로그인 처리 함수
   const handleLogin = async () => {
-    await AsyncStorage.setItem('userId', id);
-    setIsLoggedIn(true);
+    console.log('로그인 버튼 클릭됨');
+    try {
+      const response = await fetch(`${API}/accounts/login/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: id,
+          password: password,
+        }),
+      });
+      console.log('API 요청 보냄: ', `${API}/accounts/login/`);
+      const data = await response.json();
+      console.log('API 응답 받음: ', data);
+      if (response.status === 200) {
+        await AsyncStorage.setItem('accessToken', data.access); // accessToken 저장
+        await AsyncStorage.setItem('refreshToken', data.refresh); // refreshToken 저장
+        console.log('accessToken 저장:', data.access); // 토큰 저장 확인 로그
+        console.log('refreshToken 저장:', data.refresh); // 토큰 저장 확인 로그
+        setIsLoggedIn(true);
+        console.log('로그인 성공');
+        navigation.navigate('MypageScreen'); // 로그인 성공 시 MypageScreen으로 이동
+      } else {
+        console.log('로그인 실패: ', data.message);
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('로그인 요청 중 오류 발생: ', error);
+      alert('An error occurred. Please try again.');
+    }
   };
 
-  // 소셜 로그인 처리 함수
-  const handleSocialLogin = async (socialType) => {
+  const handleSocialLogin = (socialType) => {
     console.log(`${socialType} 로그인 실행`);
-    await AsyncStorage.setItem('userId', `${socialType}User`);
-    setIsLoggedIn(true);
+    const loginUrl = `${API}/accounts/${socialType.toLowerCase()}/login/`;
+    setSocialType(socialType);
+    setSocialLoginUrl(loginUrl);
+    setShowWebView(true);
+    setLoading(true); // 웹뷰 로드 상태 초기화
   };
 
-  // 로그아웃 처리 함수
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem('userId');
-    setIsLoggedIn(false);
+  const handleWebViewNavigationStateChange = async (navState) => {
+    const { url } = navState;
+    console.log('WebView Navigation State Change: ', url);
+
+    if (url.includes('/callback') && !navState.loading) {
+      setLoading(true);
+      const code = new URL(url).searchParams.get('code');
+      const state = new URL(url).searchParams.get('state');
+      const tokenUrl = `${API}/accounts/${socialType.toLowerCase()}/callback/?code=${code}&state=${state}`;
+
+      try {
+        const response = await fetch(tokenUrl, {
+          method: 'GET',
+        });
+        const data = await response.json();
+        console.log(`${socialType} 콜백 응답 받음: `, data);
+        if (response.status === 200 && data.access_token) {
+          await AsyncStorage.setItem('accessToken', data.access); // accessToken 저장
+          await AsyncStorage.setItem('refreshToken', data.refresh); // refreshToken 저장
+          console.log('accessToken 저장:', data.access); // 토큰 저장 확인 로그
+          console.log('refreshToken 저장:', data.refresh); // 토큰 저장 확인 로그
+          setIsLoggedIn(true);
+          console.log(`${socialType}User 로그인 성공`);
+        } else {
+          console.log(`${socialType} 로그인 실패: `, data.message);
+          alert(data.message);
+        }
+      } catch (error) {
+        console.error(`${socialType} 로그인 요청 중 오류 발생: `, error);
+        alert('An error occurred. Please try again.');
+      } finally {
+        setLoading(false);
+        setShowWebView(false);
+      }
+    }
   };
+
 
   return (
     <View style={styles.container}>
-      {!isLoggedIn ? (
         <>
           <TextInput
             style={styles.input}
@@ -95,21 +164,35 @@ const SettingScreen = ({ navigation }) => {
             />
           </View>
         </>
-      ) : (  // 로그인 상태일 때의 UI
-        <View style={styles.loggedInContainer}>
-          <Text style={styles.welcomeText}>환영합니다, {id}님!</Text>
-          <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('ProfileEdit')}>
-            <Text style={styles.editProfileButtonText}>프로필 수정</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutButtonText}>로그아웃</Text>
+
+
+      <Modal visible={showWebView} transparent={true} animationType="slide">
+        <View style={styles.webViewContainer}>
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color="#0000ff"
+              style={{ position: 'absolute', top: '50%', left: '50%', zIndex: 1 }}
+            />
+          )}
+          <WebView
+            source={{ uri: socialLoginUrl }}
+            onNavigationStateChange={handleWebViewNavigationStateChange}
+            onLoadEnd={() => setLoading(false)} // 로드 완료 시 로딩 상태 해제
+            startInLoadingState
+            scalesPageToFit
+          />
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setShowWebView(false)}
+          >
+            <Text style={styles.closeButtonText}>닫기</Text>
           </TouchableOpacity>
         </View>
-      )}
+      </Modal>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -117,11 +200,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
   },
   input: {
     width: '100%',
@@ -133,40 +211,84 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   loginButton: {
-    backgroundColor: '#EEE8F4', // 로그인 버튼 배경 색
-    paddingVertical: 15, // 로그인 버튼의 세로 패딩
-    paddingHorizontal: 20, // 로그인 버튼의 가로 패딩
-    borderRadius: 10, // 로그인 버튼의 모서리 둥글기
-    marginTop: 20, // 로그인 버튼 상단 여백
-    width: '100%', // 로그인 버튼 너비
-    alignItems: 'center', // 로그인 버튼 내 텍스트 중앙 정렬
+    backgroundColor: '#EEE8F4',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
   },
   loginButtonText: {
-    color: '#4E348B', // 로그인 버튼 텍스트 색
-    fontSize: 18, // 로그인 버튼 텍스트 크기
+    color: '#4E348B',
+    fontSize: 18,
   },
   signupButton: {
-    position: 'absolute', // 회원가입 버튼을 절대 위치로 설정
-    right: 10, // 오른쪽에서 10의 위치
-    top: 10, // 상단에서 10의 위치
-    padding: 10, // 패딩
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    padding: 10,
   },
   signupButtonText: {
-    color: '#4E348B', // 회원가입 버튼 텍스트 색
-    fontSize: 16, // 회원가입 버튼 텍스트 크기
-  },
-  profileButton: {
-    // 프로필 수정 버튼 스타일 (필요에 따라 조정)
-  },
-  logoutButton: {
-    // 로그아웃 버튼 스타일 (필요에 따라 조정)
+    color: '#4E348B',
+    fontSize: 16,
   },
   socialLoginContainer: {
-    flexDirection: 'row', // 방향 수정
+    flexDirection: 'row',
     marginTop: 20,
-    alignItems: 'center', // 가운데 정렬로 수정
+    alignItems: 'center',
     justifyContent: 'space-evenly',
     width: '78%',
+  },
+  loggedInContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  editProfileButton: {
+    backgroundColor: '#EEE8F4',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  editProfileButtonText: {
+    color: '#4E348B',
+    fontSize: 18,
+  },
+  logoutButton: {
+    backgroundColor: '#EEE8F4',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  logoutButtonText: {
+    color: '#4E348B',
+    fontSize: 18,
+  },
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  closeButtonText: {
+    color: 'black',
+    fontSize: 16,
   },
 });
 
