@@ -69,9 +69,13 @@ const FridgeScreen = ({ navigation }) => {
           return daysLeftA - daysLeftB;
         });
 
+        // 가져온 항목을 정렬하여 상태를 업데이트
         setItems(sortedItems);
+        
+        // 'foodData' 키로 정렬된 데이터를 AsyncStorage에 저장
         await AsyncStorage.setItem('foodData', JSON.stringify(data.results));
       } catch (error) {
+        // 데이터를 가져오는 동안 발생한 오류를 콘솔에 출력
         console.error('Error fetching data:', error);
       }
     };
@@ -92,12 +96,15 @@ const FridgeScreen = ({ navigation }) => {
     const toggleFunction = () => {
       switch (condition) {
         case '냉장':
+          // '냉장' 상태일 경우, expandedRefrigerated 상태를 토글
           setExpandedRefrigerated(!expandedRefrigerated);
           break;
         case '냉동':
+          // '냉동' 상태일 경우, expandedFrozen 상태를 토글
           setExpandedFrozen(!expandedFrozen);
           break;
         case '상온':
+          // '상온' 상태일 경우, expandedRoomTemp 상태를 토글
           setExpandedRoomTemp(!expandedRoomTemp);
           break;
         default:
@@ -107,11 +114,15 @@ const FridgeScreen = ({ navigation }) => {
 
     return (
       <View>
+        {/* filteredItems 배열을 슬라이스하여 아이템을 화면에 출력
+            expandedRefrigerated, expandedFrozen, expandedRoomTemp 중 하나라도 true면 모든 아이템을 출력하고,
+            그렇지 않으면 maxToShow 개수만큼 출력 */}
         {filteredItems.slice(0, expandedRefrigerated || expandedFrozen || expandedRoomTemp ? filteredItems.length : maxToShow).map((item, index) => (
           <View key={index} style={styles.item}>
             <Text>{item.food_name} - {item.expiration_date} (남은 기간: {Math.ceil((new Date(item.expiration_date) - new Date()) / (1000 * 60 * 60 * 24))}일)</Text>
           </View>
         ))}
+        {/* filteredItems 배열의 길이가 maxToShow보다 클 경우, '더 보기' 또는 '접기' 버튼을 표시 */}
         {filteredItems.length > maxToShow && (
           <TouchableOpacity onPress={toggleFunction}>
             <Text style={styles.moreText}>{expandedRefrigerated || expandedFrozen || expandedRoomTemp ? '접기' : '더 보기'}</Text>
@@ -119,19 +130,23 @@ const FridgeScreen = ({ navigation }) => {
         )}
       </View>
     );
+    
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        {/* '냉장 보관' 섹션 헤더를 표시하고, renderMainItems 함수를 호출하여 '냉장' 상태의 아이템을 렌더링 */}
         <Text style={styles.sectionHeader}>냉장 보관</Text>
         {renderMainItems('냉장')}
         <View style={styles.divider} />
-
+  
+        {/* '냉동 보관' 섹션 헤더를 표시하고, renderMainItems 함수를 호출하여 '냉동' 상태의 아이템을 렌더링 */}
         <Text style={styles.sectionHeader}>냉동 보관</Text>
         {renderMainItems('냉동')}
         <View style={styles.divider} />
-
+  
+        {/* '실온 보관' 섹션 헤더를 표시하고, renderMainItems 함수를 호출하여 '상온' 상태의 아이템을 렌더링 */}
         <Text style={styles.sectionHeader}>실온 보관</Text>
         {renderMainItems('상온')}
       </ScrollView>

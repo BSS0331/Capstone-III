@@ -11,46 +11,51 @@ const RecipesScreen = () => {
   const [isFabOpen, setIsFabOpen] = useState(false);  // FAB 상태 관리
   const navigation = useNavigation();
 
+  // 레시피 데이터를 가져오는 비동기 함수
   const fetchRecipes = async () => {
     try {
-      const response = await fetch(Recipes_Data);
-      const json = await response.json();
+      const response = await fetch(Recipes_Data); // Recipes_Data에서 데이터를 가져옴
+      const json = await response.json(); // 응답을 JSON 형식으로 변환
       if (json.COOKRCP01.row.length > 0) {
-        setMainRecipe(json.COOKRCP01.row[0]);
-        setRecipes(json.COOKRCP01.row.slice(1));
+        setMainRecipe(json.COOKRCP01.row[0]); // 첫 번째 레시피를 메인 레시피로 설정
+        setRecipes(json.COOKRCP01.row.slice(1)); // 나머지 레시피를 목록에 설정
       }
     } catch (error) {
-      console.error(error);
+      console.error(error); // 에러 발생 시 콘솔에 출력
     }
   };
 
+  // 컴포넌트가 마운트될 때 fetchRecipes 호출
   useEffect(() => {
     fetchRecipes();
   }, []);
 
+  // 화면에 집중될 때와 집중이 해제될 때 실행되는 useFocusEffect 훅
   useFocusEffect(
     useCallback(() => {
-      const parent = navigation.getParent();
+      const parent = navigation.getParent(); // 상위 네비게이션 객체 가져오기
       if (parent) {
         parent.setOptions({
-          tabBarStyle: { display: 'flex' },
-          headerShown: false,  // 헤더를 숨깁니다.
+          tabBarStyle: { display: 'flex' }, // 하단 탭 바 표시
+          headerShown: false,  // 헤더를 숨김
         });
       }
 
       return () => {
         if (parent) {
           parent.setOptions({
-            tabBarStyle: { display: 'none' },
-            headerShown: false,  // 헤더를 계속 숨겨둡니다.
+            tabBarStyle: { display: 'none' }, // 하단 탭 바 숨김
+            headerShown: false,  // 헤더를 계속 숨겨둠
           });
         }
       };
     }, [navigation])
   );
 
+  // 리스트 헤더를 렌더링하는 함수
   const renderHeader = () => (
     <View>
+      {/* 검색 컨테이너 */}
       <TouchableOpacity
         style={styles.searchContainer}
         onPress={() => navigation.navigate('SearchScreen', { origin: 'RecipesScreen' })}
@@ -59,6 +64,7 @@ const RecipesScreen = () => {
         <Text style={styles.searchText}>레시피 검색...</Text>
       </TouchableOpacity>
 
+      {/* 추천 레시피 섹션 */}
       {mainRecipe && (
         <View style={styles.featuredRecipeContainer}>
           <Text style={styles.featuredRecipeText}>오늘의 추천 레시피</Text>
@@ -68,6 +74,8 @@ const RecipesScreen = () => {
           <Text style={styles.mainRecipeTitle}>{mainRecipe.RCP_NM}</Text>
         </View>
       )}
+
+      {/* 섹션 헤더 */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>알면 좋은 레시피</Text>
         <TouchableOpacity onPress={() => navigation.navigate('RecipesListScreen')}>
@@ -77,22 +85,23 @@ const RecipesScreen = () => {
     </View>
   );
 
+  // 메인 화면 렌더링
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
       <FlatList
-        ListHeaderComponent={renderHeader}
-        data={recipes.slice(0, 8)}
+        ListHeaderComponent={renderHeader} // 리스트의 헤더 컴포넌트 설정
+        data={recipes.slice(0, 8)} // 최대 8개의 레시피를 표시
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.recipeCard} onPress={() => navigation.navigate('RecipeDetailScreen', { recipeId: item.RCP_SEQ })}>
             <Image source={{ uri: item.ATT_FILE_NO_MAIN }} style={styles.recipeImage} />
             <Text style={styles.recipeName}>{item.RCP_NM}</Text>
           </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.RCP_SEQ.toString()}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
+        keyExtractor={(item) => item.RCP_SEQ.toString()} // 레시피 ID를 키로 사용
+        numColumns={2} // 2열로 배열
+        columnWrapperStyle={styles.row} // 열 스타일 설정
+        showsVerticalScrollIndicator={false} // 스크롤바 숨김
       />
       <FAB.Group  // FAB 그룹: 다양한 액션을 포함한 플로팅 액션 버튼
         open={isFabOpen}  // FAB 그룹의 열림 상태
@@ -116,14 +125,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF', // 배경색을 흰색으로 설정
   },
   container: {
     flex: 1,
   },
   row: {
     flex: 1,
-    justifyContent: 'space-around'
+    justifyContent: 'space-around' // 요소들을 공간 사이에 동일하게 정렬
   },
   searchContainer: {
     flexDirection: 'row',
@@ -133,8 +142,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 25,
-    justifyContent: 'flex-start',
-    backgroundColor: 'white',
+    justifyContent: 'flex-start', // 요소들을 왼쪽 정렬
+    backgroundColor: 'white', // 배경색을 흰색으로 설정
   },
   featuredRecipeContainer: {
     alignItems: 'center',
@@ -155,7 +164,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // 요소들을 공간 사이에 동일하게 정렬
     alignItems: 'center',
     paddingHorizontal: 10,
     marginTop: 10,
@@ -185,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 5,
-    flexWrap: 'wrap',
+    flexWrap: 'wrap', // 줄바꿈 설정
   },
   fab: {
     backgroundColor: '#EEE8F4',  // FAB 배경색 설정
